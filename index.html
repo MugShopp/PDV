@@ -32,16 +32,16 @@
             <h1 class="text-lg font-extrabold tracking-tighter uppercase">MugShopp <span class="text-[#bf9a5a]">PDV</span></h1>
         </div>
     </header>
-        <main class="p-4 max-w-4xl mx-auto">
+    <main class="p-4 max-w-4xl mx-auto">
         <section id="content-home" class="tab-content">
             <div class="card-3d p-6 mb-6">
-                <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-4">Evolução Financeira</h3>
+                <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-4">Evolução Financeira (Ganhos vs Gastos)</h3>
                 <canvas id="chartLinha" height="200"></canvas>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="card-3d p-5 text-center bg-gray-50">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Vendas Mês Anterior</p>
-                    <input type="number" id="vendas-manual-anterior" onchange="salvarMeta()" class="text-xl font-bold text-center bg-transparent border-none w-full" value="0">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Vendas Mês Anterior (Manual)</p>
+                    <input type="number" id="vendas-manual-anterior" onchange="salvarMeta()" class="text-xl font-bold text-center bg-transparent border-none p-0 w-full" value="0">
                 </div>
                 <div class="card-3d p-5 text-center border-b-4 border-[#10b981]">
                     <p class="text-[9px] font-bold text-[#10b981] uppercase">Vendas Mês Atual</p>
@@ -50,218 +50,149 @@
             </div>
         </section>
 
-        <section id="content-vender" class="tab-content hidden space-y-4">
+        <section id="content-vender" class="tab-content hidden">
             <div class="card-3d p-6 space-y-4">
                 <select id="venda-cliente"><option value="">Selecionar Cliente</option></select>
-                <div class="grid grid-cols-12 gap-2">
-                    <select id="venda-produto-select" class="col-span-7"></select>
-                    <input type="number" id="venda-qtd" value="1" min="1" class="col-span-3 text-center">
-                    <button onclick="addItem()" class="col-span-2 bg-black text-white rounded-xl font-bold">+</button>
+                <div class="flex gap-2">
+                    <select id="venda-produto-select" class="flex-1"><option value="">Selecionar Produto</option></select>
+                    <input type="number" id="venda-quantidade" value="1" min="1" class="w-20">
+                    <button onclick="addItem()" class="bg-black text-white px-5 rounded-xl font-bold text-xl">+</button>
                 </div>
                 <div id="carrinho-lista" class="divide-y divide-gray-100 py-2"></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <select id="venda-pagamento"><option>Pix</option><option>Cartão</option><option>Dinheiro</option></select>
-                    <select id="venda-status"><option>Finalizado</option><option>Pendente</option></select>
-                </div>
                 <div class="pt-4 border-t space-y-3">
                     <div class="flex justify-between font-bold text-xl"><span>Total:</span><span class="text-[#bf9a5a]">R$ <span id="venda-total-display">0,00</span></span></div>
-                    <button onclick="salvarVenda()" class="btn-gold">Finalizar & Gerar Recibo</button>
+                    <button onclick="salvarVenda()" class="btn-gold">Finalizar e Gerar Recibo</button>
                 </div>
             </div>
-            <h3 class="font-bold text-xs uppercase px-2">Histórico de Vendas</h3>
-            <div id="lista-vendas-view" class="space-y-2"></div>
+            <div id="lista-vendas" class="mt-4 space-y-2"></div>
         </section>
 
         <section id="content-clientes" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-3">
-                <input type="text" id="cli-nome" placeholder="Nome Completo">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="cli-fone" placeholder="WhatsApp">
-                    <input type="email" id="cli-email" placeholder="E-mail">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="cli-cidade" placeholder="Cidade">
-                    <input type="text" id="cli-cpf" placeholder="CPF">
-                </div>
-                <button onclick="salvarCliente()" class="btn-gold">Cadastrar Cliente</button>
+                <input type="text" id="new-cli-nome" placeholder="Nome do Cliente">
+                <input type="text" id="new-cli-fone" placeholder="Telefone">
+                <input type="text" id="new-cli-email" placeholder="Email">
+                <input type="text" id="new-cli-cidade" placeholder="Cidade">
+                <input type="text" id="new-cli-cpf" placeholder="CPF">
+                <button onclick="salvarEntidade('clientes')" class="btn-gold">Cadastrar Cliente</button>
             </div>
             <div id="lista-cli-view" class="space-y-2"></div>
         </section>
 
-        <section id="content-produtos" class="tab-content hidden space-y-4">
-            <div class="card-3d p-6 space-y-3">
-                <input type="text" id="prod-nome" placeholder="Produto">
-                <input type="number" id="prod-preco" placeholder="Preço">
-                <button onclick="salvarProd()" class="btn-gold">Salvar no Estoque</button>
-            </div>
-            <div id="lista-prod-view" class="space-y-2"></div>
-        </section>
-
         <section id="content-gastos" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-3">
-                <input type="text" id="gasto-nome" placeholder="Descrição">
-                <input type="number" id="gasto-valor" placeholder="R$">
+                <input type="text" id="gasto-nome" placeholder="O que comprou?">
+                <input type="number" id="gasto-valor" placeholder="Valor (R$)">
                 <input type="date" id="gasto-data">
-                <button onclick="salvarGasto()" class="btn-gold">Lançar Gasto</button>
+                <button onclick="salvarGasto()" class="btn-gold">Salvar Gasto</button>
             </div>
-            <div id="lista-gastos-view" class="space-y-2"></div>
+            <div id="lista-gastos" class="space-y-2"></div>
         </section>
     </main>
+    <script>
+const db = new Dexie("MugShoppDB");
+db.version(11).stores({
+    vendas: '++id, data, total',
+    gastos: '++id, data, valor',
+    clientes: '++id, nome, fone, email, cidade, cpf',
+    produtos: '++id, nome, preco',
+    meta: 'id, valor'
+});
 
-    <nav class="bottom-nav">
-        <button onclick="showTab('home')" id="nav-home" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Home</button>
-        <button onclick="showTab('vender')" id="nav-vender" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Vender</button>
-        <button onclick="showTab('clientes')" id="nav-clientes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Clientes</button>
-        <button onclick="showTab('produtos')" id="nav-produtos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>Estoque</button>
-        <button onclick="showTab('gastos')" id="nav-gastos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line></svg>Gastos</button>
-                                                                                                                                                                 </nav>
-        <script>
-        const db = new Dexie("MugShoppDB");
-        db.version(11).stores({
-            vendas: '++id, data, clienteId',
-            gastos: '++id, data, valor',
-            clientes: '++id, nome, fone, email, cidade, cpf',
-            produtos: '++id, nome, preco',
-            meta: 'id'
+let carrinho = [];
+
+async function addItem() {
+    const id = document.getElementById('venda-produto-select').value;
+    const qtd = parseInt(document.getElementById('venda-quantidade').value) || 1;
+    if(!id) return;
+    const p = await db.produtos.get(parseInt(id));
+    carrinho.push({...p, quantidade: qtd});
+    renderCarrinho();
+}
+
+function renderCarrinho() {
+    document.getElementById('carrinho-lista').innerHTML = carrinho.map((item, i) => `
+        <div class="flex justify-between py-2 text-xs font-bold">
+            <span>${item.nome} x${item.quantidade}</span>
+            <div class="flex gap-4">
+                <span>R$ ${(item.preco * item.quantidade).toFixed(2)}</span>
+                <button onclick="carrinho.splice(${i},1);renderCarrinho()" class="text-red-400">✕</button>
+            </div>
+        </div>`).join('');
+    const total = carrinho.reduce((a, b) => a + (b.preco * b.quantidade), 0);
+    document.getElementById('venda-total-display').innerText = total.toFixed(2).replace('.',',');
+}
+
+async function salvarVenda() {
+    const total = carrinho.reduce((a, b) => a + (b.preco * b.quantidade), 0);
+    const cliente = document.getElementById('venda-cliente').value || "Consumidor";
+    const venda = { data: new Date().toISOString().split('T')[0], total, cliente, itens: [...carrinho] };
+    await db.vendas.add(venda);
+    gerarReciboPDF(venda);
+    carrinho = [];
+    renderCarrinho();
+    listarVendas();
+}
+
+function gerarReciboPDF(v) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.text("MUGSHOPP", 14, 10);
+    doc.text("CNPJ: 00.000.000/0001-00", 14, 15);
+    doc.text("Cliente: " + v.cliente, 14, 25);
+
+    doc.autoTable({
+        startY: 30,
+        head: [['Qtd', 'Produto', 'Unit', 'Total']],
+        body: v.itens.map(i => [
+            i.quantidade,
+            i.nome,
+            i.preco.toFixed(2),
+            (i.preco * i.quantidade).toFixed(2)
+        ])
+    });
+
+    doc.text("TOTAL: R$ " + v.total.toFixed(2), 14, doc.lastAutoTable.finalY + 10);
+    doc.text("Forma: PIX", 14, doc.lastAutoTable.finalY + 15);
+    doc.text("Status: Pago", 14, doc.lastAutoTable.finalY + 20);
+    doc.text("Data: " + v.data, 14, doc.lastAutoTable.finalY + 25);
+
+    doc.save("recibo.pdf");
+}
+
+async function listarVendas() {
+    const v = await db.vendas.toArray();
+    document.getElementById('lista-vendas').innerHTML = v.map(x => `
+        <div class="card-3d p-3 text-xs">
+            <b>${x.cliente}</b> - R$ ${x.total.toFixed(2)}
+        </div>
+    `).join('');
+}
+
+async function salvarEntidade(tipo) {
+    if(tipo === 'clientes'){
+        await db.clientes.add({
+            nome: document.getElementById('new-cli-nome').value,
+            fone: document.getElementById('new-cli-fone').value,
+            email: document.getElementById('new-cli-email').value,
+            cidade: document.getElementById('new-cli-cidade').value,
+            cpf: document.getElementById('new-cli-cpf').value
         });
+    }
+    listarEntidades(tipo);
+}
 
-        let carrinho = []; let chartObj = null;
-
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('content-' + id).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('nav-' + id).classList.add('active');
-            if(id === 'home') atualizarDash();
-            if(id === 'vender') { initVender(); listarVendas(); }
-            if(id === 'clientes') listarClientes();
-            if(id === 'produtos') listarProdutos();
-            if(id === 'gastos') listarGastos();
-        }
-
-        async function initVender() {
-            const clis = await db.clientes.toArray(); const prods = await db.produtos.toArray();
-            document.getElementById('venda-cliente').innerHTML = '<option value="">Consumidor Final</option>' + clis.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-            document.getElementById('venda-produto-select').innerHTML = '<option value="">Selecionar Produto</option>' + prods.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco}</option>`).join('');
-        }
-
-        async function addItem() {
-            const id = document.getElementById('venda-produto-select').value;
-            const qtd = parseInt(document.getElementById('venda-qtd').value) || 1;
-            if(!id) return;
-            const p = await db.produtos.get(parseInt(id));
-            carrinho.push({ ...p, qtd, subtotal: p.preco * qtd });
-            renderCarrinho();
-        }
-
-        function renderCarrinho() {
-            document.getElementById('carrinho-lista').innerHTML = carrinho.map((it, i) => `
-                <div class="flex justify-between py-2 text-xs font-bold">
-                    <span>${it.qtd}x ${it.nome}</span>
-                    <div class="flex gap-4"><span>R$ ${it.subtotal.toFixed(2)}</span><button onclick="carrinho.splice(${i},1);renderCarrinho()" class="text-red-400">✕</button></div>
-                </div>`).join('');
-            const tot = carrinho.reduce((a, b) => a + b.subtotal, 0);
-            document.getElementById('venda-total-display').innerText = tot.toFixed(2).replace('.',',');
-        }
-
-        async function salvarVenda() {
-            if(carrinho.length === 0) return alert("Carrinho vazio!");
-            const cid = document.getElementById('venda-cliente').value;
-            const cliente = cid ? await db.clientes.get(parseInt(cid)) : {nome: "Consumidor Final"};
-            const venda = {
-                data: new Date().toLocaleDateString('pt-BR'),
-                cliente: cliente,
-                itens: [...carrinho],
-                total: carrinho.reduce((a, b) => a + b.subtotal, 0),
-                pagamento: document.getElementById('venda-pagamento').value,
-                status: document.getElementById('venda-status').value
-            };
-            await db.vendas.add(venda);
-            gerarReciboPDF(venda);
-            carrinho = []; renderCarrinho(); listarVendas();
-        }
-
-        async function gerarReciboPDF(v) {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            doc.setFillColor(0,0,0); doc.rect(0, 0, 210, 40, 'F');
-            doc.setTextColor(255,255,255); doc.setFontSize(22); doc.text("MUGSHOPP", 105, 20, {align:'center'});
-            doc.setFontSize(10); doc.text("Estúdio de Design & Personalizados | Taubaté - SP", 105, 30, {align:'center'});
-            
-            doc.setTextColor(0,0,0); doc.setFontSize(12); doc.text("RECIBO DE VENDA", 14, 50);
-            doc.setFontSize(10); doc.text(`Cliente: ${v.cliente.nome}`, 14, 60);
-            doc.text(`WhatsApp: ${v.cliente.fone || '-'} | CPF: ${v.cliente.cpf || '-'}`, 14, 65);
-            doc.text(`Data: ${v.data} | Pagamento: ${v.pagamento} | Status: ${v.status}`, 14, 70);
-
-            doc.autoTable({
-                startY: 80, head: [['Qtd', 'Produto', 'Unit.', 'Subtotal']],
-                body: v.itens.map(i => [i.qtd, i.nome, `R$ ${i.preco.toFixed(2)}`, `R$ ${i.subtotal.toFixed(2)}`]),
-                theme: 'striped', headStyles: {fillColor: [191, 154, 90]}
-            });
-            doc.setFontSize(14); doc.text(`TOTAL: R$ ${v.total.toFixed(2)}`, 14, doc.lastAutoTable.finalY + 15);
-            doc.save(`Recibo_${v.cliente.nome}_${v.data}.pdf`);
-        }
-
-        async function salvarCliente() {
-            const data = { nome: document.getElementById('cli-nome').value, fone: document.getElementById('cli-fone').value, email: document.getElementById('cli-email').value, cidade: document.getElementById('cli-cidade').value, cpf: document.getElementById('cli-cpf').value };
-            await db.clientes.add(data); listarClientes();
-        }
-
-        async function listarClientes() {
-            const data = await db.clientes.toArray();
-            document.getElementById('lista-cli-view').innerHTML = data.map(c => `
-                <div class="card-3d p-4 space-y-2">
-                    <input onchange="db.clientes.update(${c.id}, {nome: this.value})" value="${c.nome}" class="font-bold text-sm border-none w-full">
-                    <div class="grid grid-cols-2 text-[10px] gap-2">
-                        <input onchange="db.clientes.update(${c.id}, {fone: this.value})" value="${c.fone}" placeholder="Fone" class="border-none">
-                        <input onchange="db.clientes.update(${c.id}, {cpf: this.value})" value="${c.cpf}" placeholder="CPF" class="border-none">
-                    </div>
-                    <button onclick="db.clientes.delete(${c.id}).then(listarClientes)" class="text-red-300 text-[10px]">Excluir Cliente</button>
-                </div>`).join('');
-        }
-
-        async function listarGastos() {
-            const data = await db.gastos.toArray();
-            document.getElementById('lista-gastos-view').innerHTML = data.map(g => `
-                <div class="card-3d p-4 flex justify-between items-center">
-                    <div><input onchange="db.gastos.update(${g.id}, {nome: this.value})" value="${g.nome}" class="font-bold text-xs border-none"><br>
-                    <input type="number" onchange="db.gastos.update(${g.id}, {valor: parseFloat(this.value)})" value="${g.valor}" class="text-red-500 font-bold border-none"></div>
-                    <button onclick="db.gastos.delete(${g.id}).then(listarGastos)" class="text-red-300">✕</button>
-                </div>`).join('');
-        }
-
-        async function listarVendas() {
-            const data = await db.vendas.reverse().toArray();
-            document.getElementById('lista-vendas-view').innerHTML = data.map(v => `
-                <div class="card-3d p-3 flex justify-between text-xs items-center">
-                    <span><b>${v.data}</b> - ${v.cliente.nome}</span>
-                    <span class="font-bold">R$ ${v.total.toFixed(2)}</span>
-                </div>`).join('');
-        }
-
-        async function salvarGasto() {
-            await db.gastos.add({ nome: document.getElementById('gasto-nome').value, valor: parseFloat(document.getElementById('gasto-valor').value), data: document.getElementById('gasto-data').value });
-            listarGastos();
-        }
-
-        async function salvarProd() {
-            await db.produtos.add({ nome: document.getElementById('prod-nome').value, preco: parseFloat(document.getElementById('prod-preco').value) });
-            listarProdutos();
-        }
-
-        async function listarProdutos() {
-            const data = await db.produtos.toArray();
-            document.getElementById('lista-prod-view').innerHTML = data.map(p => `
-                <div class="card-3d p-3 flex justify-between items-center">
-                    <input onchange="db.produtos.update(${p.id}, {nome: this.value})" value="${p.nome}" class="font-bold text-xs border-none">
-                    <input type="number" onchange="db.produtos.update(${p.id}, {preco: parseFloat(this.value)})" value="${p.preco}" class="w-20 text-right border-none">
-                    <button onclick="db.produtos.delete(${p.id}).then(listarProdutos)" class="text-red-300 ml-2">✕</button>
-                </div>`).join('');
-        }
-
-        window.onload = () => showTab('home');
-    </script>
+async function listarGastos() {
+    const list = await db.gastos.toArray();
+    document.getElementById('lista-gastos').innerHTML = list.map(g => `
+        <div class="card-3d p-4 flex justify-between">
+            <input value="${g.nome}" onchange="editar('gastos',${g.id},'nome',this.value)">
+            <input value="${g.valor}" onchange="editar('gastos',${g.id},'valor',this.value)">
+            <button onclick="db.gastos.delete(${g.id}).then(listarGastos)">✕</button>
+        </div>
+    `).join('');
+}
+</script>
 </body>
 </html>
-
-                                                                                 
-    
