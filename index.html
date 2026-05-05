@@ -28,7 +28,7 @@
 <body>
     <header class="p-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <img src="https://i.postimg.cc/T190pkF7/Copia-de-Novo-Logotipo-2026-20260127-183120-0000.png" id="empresa-logo" class="h-10 w-10 object-contain rounded-full">
+            <img src="https://i.postimg.cc/T190pkF7/Copia-de-Novo-Logotipo-2026-20260127-183120-0000.png" class="h-10 w-10 object-contain rounded-full">
             <h1 class="text-lg font-extrabold tracking-tighter uppercase">MugShopp <span class="text-[#bf9a5a]">PDV</span></h1>
         </div>
     </header>
@@ -45,7 +45,7 @@
                     <input type="number" id="vendas-manual-anterior" onchange="salvarMeta()" class="text-xl font-bold text-center bg-transparent border-none w-full" value="0">
                 </div>
                 <div class="card-3d p-5 text-center border-b-4 border-[#10b981]">
-                    <p class="text-[9px] font-bold text-[#10b981] uppercase">Vendas (Mês)</p>
+                    <p class="text-[9px] font-bold text-[#10b981] uppercase">Entradas (Mês)</p>
                     <h4 id="vendas-mes-atual" class="text-2xl font-bold">R$ 0,00</h4>
                 </div>
             </div>
@@ -53,6 +53,7 @@
 
         <section id="content-vender" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-4">
+                <input type="hidden" id="venda-id-edit">
                 <select id="venda-cliente"><option value="">Selecionar Cliente</option></select>
                 <div class="grid grid-cols-12 gap-2">
                     <select id="venda-produto-select" class="col-span-7"></select>
@@ -62,11 +63,11 @@
                 <div id="carrinho-lista" class="divide-y divide-gray-100 py-2"></div>
                 <div class="grid grid-cols-2 gap-2">
                     <select id="venda-pagamento"><option>Pix</option><option>Cartão</option><option>Dinheiro</option></select>
-                    <select id="venda-status"><option>Finalizado</option><option>Pendente</option><option>Cancelado</option></select>
+                    <select id="venda-status"><option>Finalizado</option><option>Pendente</option></select>
                 </div>
                 <div class="pt-4 border-t space-y-3">
                     <div class="flex justify-between font-bold text-xl"><span>Total:</span><span class="text-[#bf9a5a]">R$ <span id="venda-total-display">0,00</span></span></div>
-                    <button onclick="salvarVenda()" class="btn-gold">Finalizar Venda & Recibo</button>
+                    <button onclick="salvarVenda()" id="btn-venda-acao" class="btn-gold">Finalizar Venda & Recibo</button>
                 </div>
             </div>
             <h3 class="font-bold text-xs uppercase px-2">Histórico de Vendas</h3>
@@ -76,61 +77,30 @@
         <section id="content-clientes" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-3">
                 <input type="hidden" id="cli-id-edit">
-                <input type="text" id="cli-nome" placeholder="Nome Completo">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="cli-fone" placeholder="WhatsApp">
-                    <input type="email" id="cli-email" placeholder="E-mail">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="cli-cidade" placeholder="Cidade">
-                    <input type="text" id="cli-cpf" placeholder="CPF">
-                </div>
+                <input type="text" id="cli-nome" placeholder="Nome Completo"><div class="grid grid-cols-2 gap-2"><input type="text" id="cli-fone" placeholder="WhatsApp"><input type="email" id="cli-email" placeholder="E-mail"></div>
+                <div class="grid grid-cols-2 gap-2"><input type="text" id="cli-cidade" placeholder="Cidade"><input type="text" id="cli-cpf" placeholder="CPF"></div>
                 <input type="text" id="cli-endereco" placeholder="Endereço Completo">
                 <button onclick="salvarCliente()" id="btn-cli-acao" class="btn-gold">Salvar Cliente</button>
             </div>
             <div id="lista-cli-view" class="space-y-2"></div>
         </section>
 
-        <section id="content-produtos" class="tab-content hidden space-y-4">
-            <div class="card-3d p-6 space-y-3">
-                <input type="text" id="prod-nome" placeholder="Nome do Produto">
-                <input type="number" id="prod-preco" placeholder="Preço de Venda">
-                <button onclick="salvarProd()" class="btn-gold">Cadastrar Produto</button>
-            </div>
-            <div id="lista-prod-view" class="space-y-2"></div>
-        </section>
-
-        <section id="content-gastos" class="tab-content hidden space-y-4">
-            <div class="card-3d p-6 space-y-3">
-                <input type="hidden" id="gasto-id-edit">
-                <input type="text" id="gasto-nome" placeholder="Descrição da Saída">
-                <input type="number" id="gasto-valor" placeholder="R$ Valor">
-                <input type="date" id="gasto-data">
-                <button onclick="salvarGasto()" id="btn-gasto-acao" class="btn-gold">Lançar Saída</button>
-            </div>
-            <div id="lista-gastos-view" class="space-y-2"></div>
-        </section>
-
-        <section id="content-ajustes" class="tab-content hidden space-y-4">
-            <div class="card-3d p-6 space-y-4 text-center">
-                <h3 class="font-bold uppercase text-xs">Sistema e Backup</h3>
-                <button onclick="exportarBackup()" class="btn-outline text-blue-600">Exportar Dados (.json)</button>
-                <label class="btn-outline text-green-600 cursor-pointer block">Importar Dados <input type="file" id="up-bkp" class="hidden" onchange="importarBackup(this)"></label>
-            </div>
-        </section>
+        <section id="content-produtos" class="tab-content hidden space-y-4"><div class="card-3d p-6 space-y-3"><input type="text" id="prod-nome" placeholder="Produto"><input type="number" id="prod-preco" placeholder="Preço"><button onclick="salvarProd()" class="btn-gold">Cadastrar</button></div><div id="lista-prod-view" class="space-y-2"></div></section>
+        <section id="content-gastos" class="tab-content hidden space-y-4"><div class="card-3d p-6 space-y-3"><input type="hidden" id="gasto-id-edit"><input type="text" id="gasto-nome" placeholder="Descrição"><input type="number" id="gasto-valor" placeholder="R$"><input type="date" id="gasto-data"><button onclick="salvarGasto()" id="btn-gasto-acao" class="btn-gold">Lançar Saída</button></div><div id="lista-gastos-view" class="space-y-2"></div></section>
+        <section id="content-ajustes" class="tab-content hidden space-y-4 text-center"><div class="card-3d p-6 space-y-4"><button onclick="exportarBackup()" class="btn-outline text-blue-600">Exportar Backup (.JSON)</button><label class="btn-outline text-green-600 cursor-pointer block">Importar Backup <input type="file" id="up-bkp" class="hidden" onchange="importarBackup(this)"></label></div></section>
     </main>
 
     <nav class="bottom-nav">
         <button onclick="showTab('home')" id="nav-home" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Início</button>
         <button onclick="showTab('vender')" id="nav-vender" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Vendas</button>
         <button onclick="showTab('clientes')" id="nav-clientes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Cli</button>
-        <button onclick="showTab('produtos')" id="nav-produtos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>Estoque</button>
+        <button onclick="showTab('produtos')" id="nav-produtos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>Itens</button>
         <button onclick="showTab('gastos')" id="nav-gastos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line></svg>Saídas</button>
         <button onclick="showTab('ajustes')" id="nav-ajustes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09"></path></svg>Ajustes</button>
     </nav>
-    <script>
+        <script>
         const db = new Dexie("MugShoppDB");
-        db.version(16).stores({
+        db.version(17).stores({
             vendas: '++id, data, mes, total, status',
             gastos: '++id, data, mes, valor',
             clientes: '++id, nome, fone, email, cidade, cpf, endereco',
@@ -163,25 +133,88 @@
             chartObj = new Chart(ctx, { type: 'doughnut', data: { labels: ['Entradas','Saídas'], datasets:[{data:[totV, totG], backgroundColor:['#10b981','#f87171']}] }, options: { plugins: { legend: { position: 'bottom' }}}});
         }
 
-        // --- GESTÃO DE CLIENTES ---
-        async function salvarCliente() {
-            const id = document.getElementById('cli-id-edit').value;
-            const data = { nome: document.getElementById('cli-nome').value, fone: document.getElementById('cli-fone').value, email: document.getElementById('cli-email').value, cidade: document.getElementById('cli-cidade').value, cpf: document.getElementById('cli-cpf').value, endereco: document.getElementById('cli-endereco').value };
-            if(id) await db.clientes.update(parseInt(id), data); else await db.clientes.add(data);
-            resetCliForm(); listarClientes();
+        // --- GESTÃO DE VENDAS (EDITAR/EXCLUIR) ---
+        async function salvarVenda() {
+            if(!carrinho.length) return;
+            const id = document.getElementById('venda-id-edit').value;
+            const cid = document.getElementById('venda-cliente').value;
+            const v = {
+                data: new Date().toLocaleDateString('pt-BR'), mes: new Date().toLocaleDateString('pt-BR').slice(3),
+                cliente: cid ? await db.clientes.get(parseInt(cid)) : {nome: "Consumidor Final", cpf: "-", endereco: "-"},
+                itens: [...carrinho], total: carrinho.reduce((a,b)=>a+b.subtotal,0),
+                pagamento: document.getElementById('venda-pagamento').value, status: document.getElementById('venda-status').value
+            };
+            if(id) await db.vendas.update(parseInt(id), v); else await db.vendas.add(v);
+            gerarReciboPDF(v); resetVendaForm(); listarVendas();
         }
-        function editCliente(c) {
-            document.getElementById('cli-id-edit').value = c.id; document.getElementById('cli-nome').value = c.nome; document.getElementById('cli-fone').value = c.fone; document.getElementById('cli-email').value = c.email; document.getElementById('cli-cidade').value = c.cidade; document.getElementById('cli-cpf').value = c.cpf; document.getElementById('cli-endereco').value = c.endereco;
-            document.getElementById('btn-cli-acao').innerText = "Atualizar"; window.scrollTo(0,0);
-        }
-        function resetCliForm() { document.getElementById('cli-id-edit').value = ""; document.querySelectorAll('#content-clientes input').forEach(i => i.value = ""); document.getElementById('btn-cli-acao').innerText = "Salvar Cliente"; }
-        async function listarClientes() { const d = await db.clientes.toArray(); document.getElementById('lista-cli-view').innerHTML = d.map(c => `<div class="card-3d p-4 flex justify-between items-center" onclick='editCliente(${JSON.stringify(c)})'><div><b class="text-sm">${c.nome}</b><p class="text-[10px] text-gray-400">${c.fone}</p></div><span class="text-[10px] font-bold text-blue-500 uppercase">Editar</span></div>`).join(''); }
 
-        // --- VENDAS E RECIBO DETALHADO ---
+        function editVenda(v) {
+            document.getElementById('venda-id-edit').value = v.id;
+            document.getElementById('venda-cliente').value = v.cliente.id || "";
+            carrinho = [...v.itens];
+            document.getElementById('venda-pagamento').value = v.pagamento;
+            document.getElementById('venda-status').value = v.status;
+            document.getElementById('btn-venda-acao').innerText = "Atualizar Venda";
+            renderCarrinho(); window.scrollTo(0,0);
+        }
+
+        function resetVendaForm() {
+            document.getElementById('venda-id-edit').value = "";
+            carrinho = []; renderCarrinho();
+            document.getElementById('btn-venda-acao').innerText = "Finalizar Venda & Recibo";
+        }
+
+        async function listarVendas() {
+            const d = await db.vendas.reverse().toArray();
+            document.getElementById('lista-vendas-view').innerHTML = d.map(v => `
+                <div class="card-3d p-4 flex justify-between items-center text-xs">
+                    <div onclick='gerarReciboPDF(${JSON.stringify(v)})'><b>${v.cliente.nome}</b><p class="text-gray-400">${v.data} - R$ ${v.total.toFixed(2)}</p></div>
+                    <div class="flex gap-3 font-bold uppercase">
+                        <span onclick='editVenda(${JSON.stringify(v)})' class="text-blue-500">Edit</span>
+                        <span onclick="if(confirm('Excluir venda?')) db.vendas.delete(${v.id}).then(listarVendas)" class="text-red-400">Excluir</span>
+                    </div>
+                </div>`).join('');
+        }
+
+        // --- RECIBO PROFISSIONAL ---
+        async function gerarReciboPDF(v) {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            const logo = "https://i.postimg.cc/T190pkF7/Copia-de-Novo-Logotipo-2026-20260127-183120-0000.png";
+            
+            // Dados da Empresa
+            doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("MugShopp E.D. e Personalizados", 105, 20, {align:'center'});
+            doc.setFontSize(10); doc.setFont("helvetica", "normal");
+            doc.text("CNPJ: 64.137.780/0001-07", 105, 26, {align:'center'});
+            doc.text("Rua Emília 384 - Gurilândia - Taubaté", 105, 31, {align:'center'});
+            doc.text("Fone: (12) 99243.9101 | Site: www.mugshopp.com.br", 105, 36, {align:'center'});
+            doc.line(10, 42, 200, 42);
+
+            // Dados Cliente
+            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("DADOS DO CLIENTE", 10, 52);
+            doc.setFontSize(10); doc.setFont("helvetica", "normal");
+            doc.text(`Nome: ${v.cliente.nome}`, 10, 58); doc.text(`CPF/CNPJ: ${v.cliente.cpf}`, 10, 63); doc.text(`Endereço: ${v.cliente.endereco}`, 10, 68);
+
+            // Dados Venda
+            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("RESUMO DO PEDIDO", 130, 52);
+            doc.setFontSize(10); doc.setFont("helvetica", "normal");
+            doc.text(`Data: ${v.data}`, 130, 58); doc.text(`Pagamento: ${v.pagamento}`, 130, 63); doc.text(`Status: ${v.status}`, 130, 68);
+
+            // Tabela
+            doc.autoTable({ startY: 75, head: [['Qtd', 'Produto', 'V. Unit', 'Total']], body: v.itens.map(i=>[i.qtd, i.nome, `R$ ${i.preco.toFixed(2)}`, `R$ ${i.subtotal.toFixed(2)}`]), headStyles: {fillColor: [0, 0, 0], fontSize: 11}, styles: {fontSize: 10} });
+            
+            const finalY = doc.lastAutoTable.finalY;
+            doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text(`TOTAL GERAL: R$ ${v.total.toFixed(2)}`, 195, finalY + 15, {align:'right'});
+            
+            // Rodapé
+            doc.setFontSize(12); doc.text("Agradecemos sua confiança.", 105, finalY + 30, {align:'center'});
+            doc.save(`MugShopp_Recibo_${v.cliente.nome}.pdf`);
+        }
+
+        // --- FUNÇÕES AUXILIARES (MANUTENÇÃO) ---
         async function initVender() {
             const clis = await db.clientes.toArray(); const prods = await db.produtos.toArray();
             document.getElementById('venda-cliente').innerHTML = '<option value="">Consumidor Final</option>' + clis.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-            document.getElementById('venda-produto-select').innerHTML = '<option value="">Selecionar Produto</option>' + prods.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`).join('');
+            document.getElementById('venda-produto-select').innerHTML = '<option value="">Produto...</option>' + prods.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`).join('');
         }
         async function addItem() {
             const p = await db.produtos.get(parseInt(document.getElementById('venda-produto-select').value)); if(!p) return;
@@ -191,60 +224,19 @@
             document.getElementById('carrinho-lista').innerHTML = carrinho.map((it, i) => `<div class="flex justify-between py-1 text-xs font-bold"><span>${it.qtd}x ${it.nome}</span><span>R$ ${it.subtotal.toFixed(2)}</span></div>`).join('');
             document.getElementById('venda-total-display').innerText = carrinho.reduce((a,b)=>a+b.subtotal,0).toFixed(2);
         }
-        async function salvarVenda() {
-            if(!carrinho.length) return;
-            const cid = document.getElementById('venda-cliente').value;
-            const v = { data: new Date().toLocaleDateString('pt-BR'), mes: new Date().toLocaleDateString('pt-BR').slice(3), cliente: cid ? await db.clientes.get(parseInt(cid)) : {nome: "Consumidor Final", cpf: "-", endereco: "-"}, itens: [...carrinho], total: carrinho.reduce((a,b)=>a+b.subtotal,0), pagamento: document.getElementById('venda-pagamento').value, status: document.getElementById('venda-status').value };
-            await db.vendas.add(v); gerarReciboPDF(v); carrinho = []; renderCarrinho(); listarVendas();
+        async function salvarCliente() {
+            const id = document.getElementById('cli-id-edit').value; const data = { nome: document.getElementById('cli-nome').value, fone: document.getElementById('cli-fone').value, email: document.getElementById('cli-email').value, cidade: document.getElementById('cli-cidade').value, cpf: document.getElementById('cli-cpf').value, endereco: document.getElementById('cli-endereco').value };
+            if(id) await db.clientes.update(parseInt(id), data); else await db.clientes.add(data); resetCliForm(); listarClientes();
         }
-
-        async function gerarReciboPDF(v) {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            // Cabeçalho Empresa
-            doc.setFontSize(18); doc.setFont("helvetica", "bold"); doc.text("MUGSHOPP", 105, 15, {align:'center'});
-            doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.text("Personalizados e Presentes Exclusivos", 105, 20, {align:'center'});
-            doc.text("Contato: (00) 00000-0000 | E-mail: contato@mugshopp.com", 105, 24, {align:'center'});
-            doc.line(10, 28, 200, 28);
-            // Dados do Cliente e Venda
-            doc.setFont("helvetica", "bold"); doc.text("DADOS DO CLIENTE", 10, 35);
-            doc.setFont("helvetica", "normal"); doc.text(`Nome: ${v.cliente.nome}`, 10, 40); doc.text(`CPF: ${v.cliente.cpf || '-'}`, 10, 44); doc.text(`Endereço: ${v.cliente.endereco || '-'}`, 10, 48);
-            doc.setFont("helvetica", "bold"); doc.text("INFORMAÇÕES DA VENDA", 130, 35);
-            doc.setFont("helvetica", "normal"); doc.text(`Data: ${v.data}`, 130, 40); doc.text(`Pagamento: ${v.pagamento}`, 130, 44); doc.text(`Status: ${v.status}`, 130, 48);
-            // Tabela de Produtos
-            doc.autoTable({ startY: 55, head: [['Qtd', 'Produto', 'V. Unit', 'Total']], body: v.itens.map(i=>[i.qtd, i.nome, `R$ ${i.preco.toFixed(2)}`, `R$ ${i.subtotal.toFixed(2)}`]), theme: 'striped', headStyles: {fillColor: [0, 0, 0]} });
-            const finalY = doc.lastAutoTable.finalY;
-            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text(`TOTAL GERAL: R$ ${v.total.toFixed(2)}`, 195, finalY + 10, {align:'right'});
-            doc.save(`Recibo_${v.cliente.nome}_${v.data}.pdf`);
-        }
-
-        async function listarVendas() {
-            const d = await db.vendas.reverse().toArray();
-            document.getElementById('lista-vendas-view').innerHTML = d.map(v => `
-                <div class="card-3d p-4 flex justify-between items-center text-xs" onclick='gerarReciboPDF(${JSON.stringify(v)})'>
-                    <div><b class="block">${v.cliente.nome}</b><span class="text-gray-400">${v.data} - ${v.pagamento}</span></div>
-                    <div class="text-right"><b class="text-[#10b981] block">R$ ${v.total.toFixed(2)}</b><span class="text-[9px] uppercase font-bold text-gray-300">${v.status}</span></div>
-                </div>`).join('');
-        }
-
-        // --- GASTOS E PRODUTOS ---
-        async function salvarGasto() {
-            const id = document.getElementById('gasto-id-edit').value; const dt = document.getElementById('gasto-data').value || new Date().toISOString().split('T')[0];
-            const data = { nome: document.getElementById('gasto-nome').value, valor: parseFloat(document.getElementById('gasto-valor').value), data: dt, mes: dt.split('-')[1]+'/'+dt.split('-')[0] };
-            if(id) await db.gastos.update(parseInt(id), data); else await db.gastos.add(data);
-            resetGastoForm(); listarGastos();
-        }
-        function editGasto(g) { document.getElementById('gasto-id-edit').value = g.id; document.getElementById('gasto-nome').value = g.nome; document.getElementById('gasto-valor').value = g.valor; document.getElementById('gasto-data').value = g.data; document.getElementById('btn-gasto-acao').innerText = "Atualizar"; }
-        function resetGastoForm() { document.getElementById('gasto-id-edit').value = ""; document.getElementById('gasto-nome').value = ""; document.getElementById('gasto-valor').value = ""; document.getElementById('btn-gasto-acao').innerText = "Lançar Saída"; }
-        async function listarGastos() {
-            const d = await db.gastos.reverse().toArray();
-            document.getElementById('lista-gastos-view').innerHTML = d.map(g => `<div class="card-3d p-4 flex justify-between items-center"><div onclick='editGasto(${JSON.stringify(g)})'><b class="text-xs uppercase">${g.nome}</b><p class="text-red-500 font-bold">R$ ${g.valor.toFixed(2)}</p></div><button onclick="if(confirm('Excluir?')) db.gastos.delete(${g.id}).then(listarGastos)" class="text-gray-300 text-lg">✕</button></div>`).join('');
-        }
+        function editCliente(c) { document.getElementById('cli-id-edit').value = c.id; document.getElementById('cli-nome').value = c.nome; document.getElementById('cli-fone').value = c.fone; document.getElementById('cli-email').value = c.email; document.getElementById('cli-cidade').value = c.cidade; document.getElementById('cli-cpf').value = c.cpf; document.getElementById('cli-endereco').value = c.endereco; document.getElementById('btn-cli-acao').innerText = "Atualizar"; window.scrollTo(0,0); }
+        function resetCliForm() { document.getElementById('cli-id-edit').value = ""; document.querySelectorAll('#content-clientes input').forEach(i => i.value = ""); document.getElementById('btn-cli-acao').innerText = "Salvar Cliente"; }
+        async function listarClientes() { const d = await db.clientes.toArray(); document.getElementById('lista-cli-view').innerHTML = d.map(c => `<div class="card-3d p-4 flex justify-between items-center" onclick='editCliente(${JSON.stringify(c)})'><div><b>${c.nome}</b><p class="text-xs text-gray-400">${c.fone}</p></div><span class="text-xs text-blue-500 font-bold">EDITAR</span></div>`).join(''); }
+        async function salvarGasto() { const id = document.getElementById('gasto-id-edit').value; const dt = document.getElementById('gasto-data').value || new Date().toISOString().split('T')[0]; const data = { nome: document.getElementById('gasto-nome').value, valor: parseFloat(document.getElementById('gasto-valor').value), data: dt, mes: dt.split('-')[1]+'/'+dt.split('-')[0] }; if(id) await db.gastos.update(parseInt(id), data); else await db.gastos.add(data); resetGastoForm(); listarGastos(); }
+        async function listarGastos() { const d = await db.gastos.reverse().toArray(); document.getElementById('lista-gastos-view').innerHTML = d.map(g => `<div class="card-3d p-4 flex justify-between items-center"><div><b>${g.nome}</b><p class="text-red-500">R$ ${g.valor.toFixed(2)}</p></div><button onclick="if(confirm('Excluir?')) db.gastos.delete(${g.id}).then(listarGastos)" class="text-gray-300 font-bold">✕</button></div>`).join(''); }
         async function salvarProd() { await db.produtos.add({nome: document.getElementById('prod-nome').value, preco: parseFloat(document.getElementById('prod-preco').value)}); listarProdutos(); }
         async function listarProdutos() { const d = await db.produtos.toArray(); document.getElementById('lista-prod-view').innerHTML = d.map(p => `<div class="card-3d p-3 flex justify-between text-xs font-bold"><span>${p.nome}</span><span>R$ ${p.preco.toFixed(2)}</span></div>`).join(''); }
-        
         async function exportarBackup() { const b = { v: await db.vendas.toArray(), g: await db.gastos.toArray(), c: await db.clientes.toArray(), p: await db.produtos.toArray() }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(b)], {type:"application/json"})); a.download="mug_backup.json"; a.click(); }
-        function importarBackup(input) { const reader = new FileReader(); reader.onload = async (e) => { const d = JSON.parse(e.target.result); await db.vendas.bulkPut(d.v || []); await db.gastos.bulkPut(d.g || []); await db.clientes.bulkPut(d.c || []); await db.produtos.bulkPut(d.p || []); alert("Sucesso!"); location.reload(); }; reader.readAsText(input.files[0]); }
-
+        function importarBackup(input) { const reader = new FileReader(); reader.onload = async (e) => { const d = JSON.parse(e.target.result); await db.vendas.bulkPut(d.v || []); await db.gastos.bulkPut(d.g || []); await db.clientes.bulkPut(d.c || []); await db.produtos.bulkPut(d.p || []); location.reload(); }; reader.readAsText(input.files[0]); }
         window.onload = () => showTab('home');
     </script>
 </body>
