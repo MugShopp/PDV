@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MugShopp - Sistema de Gestão</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    <style>
+        :root { --gold: #bf9a5a; --off-white: #fcfaf7; }
+        body { background-color: var(--off-white); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1a1a1a; }
+        .active-tab { border-bottom: 3px solid var(--gold); color: var(--gold); font-weight: 700; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        input, select { border-bottom: 1px solid #ddd; padding: 8px 0; outline: none; background: transparent; width: 100%; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--gold); }
+        .btn-gold { background-color: black; color: white; padding: 10px 20px; border-radius: 5px; transition: 0.3s; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; }
+        .btn-gold:hover { background-color: var(--gold); }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <header class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div class="text-center md:text-left">
+            <h1 class="text-2xl font-bold tracking-tighter">MUGSHOPP <span class="text-[#bf9a5a]">SISTEMA</span></h1>
+            <p class="text-[10px] text-gray-400 uppercase tracking-widest">Design & Personalizados</p>
+        </div>
+        <nav class="flex space-x-6 overflow-x-auto w-full md:w-auto pb-2 border-b md:border-none">
+            <button onclick="showTab('home')" id="tab-home" class="tab-btn active-tab">Início</button>
+            <button onclick="showTab('pdv')" id="tab-pdv" class="tab-btn">Vendas</button>
+            <button onclick="showTab('gastos')" id="tab-gastos" class="tab-btn">Gastos</button>
+            <button onclick="showTab('clientes')" id="tab-clientes" class="tab-btn">Clientes</button>
+            <button onclick="showTab('produtos')" id="tab-produtos" class="tab-btn">Produtos</button>
+            <button onclick="showTab('config')" id="tab-config" class="tab-btn">⚙️</button>
+        </nav>
+    </header>
+
+    <main class="max-w-6xl mx-auto">
+        
+        <section id="content-home" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="card p-6 border-t-4 border-green-500">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Vendas do Mês</span>
+                    <h2 id="card-vendas-mes" class="text-3xl font-bold">R$ 0,00</h2>
+                </div>
+                <div class="card p-6 border-t-4 border-red-500">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Gastos do Mês</span>
+                    <h2 id="card-gastos-mes" class="text-3xl font-bold">R$ 0,00</h2>
+                </div>
+                <div class="card p-6 border-t-4 border-[#bf9a5a]">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Saldo Total</span>
+                    <h2 id="card-saldo-total" class="text-3xl font-bold text-[#bf9a5a]">R$ 0,00</h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h3 class="font-bold mb-4 text-sm uppercase">Fluxo de Caixa (Vendas x Gastos)</h3>
+                    <canvas id="chartVendasGastos" height="200"></canvas>
+                </div>
+                <div class="space-y-4">
+                    <div class="card p-6">
+                        <h3 class="font-bold mb-2 text-sm uppercase">Ajuste de Caixa</h3>
+                        <p class="text-xs text-gray-500 mb-3">Valor que ficou em caixa no mês passado:</p>
+                        <input type="number" id="saldo-anterior" onchange="salvarSaldoAnterior()" placeholder="R$ 0,00">
+                    </div>
+                    <div class="card p-6 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] text-gray-400 uppercase">Mês Anterior</p>
+                            <p id="count-ant" class="text-xl font-bold">0 vendas</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-gray-400 uppercase">Mês Atual</p>
+                            <p id="count-atua" class="text-xl font-bold text-[#bf9a5a]">0 vendas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="content-pdv" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 card p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Cliente</label>
+                            <select id="venda-cliente"></select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Data</label>
+                            <input type="date" id="venda-data">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Adicionar Produto</label>
+                        <div class="flex gap-2">
+                            <select id="venda-produto-select"></select>
+                            <button onclick="addItem()" class="btn-gold">+</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="text-gray-400 border-b">
+                                    <th class="py-2">Item</th>
+                                    <th>Qtd</th>
+                                    <th>Preço</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="carrinho-lista"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card p-6 flex flex-col justify-between space-y-6">
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-4">Finalização</h3>
+                        <div class="space-y-3">
+                            <input type="number" id="venda-desconto" oninput="calcTotal()" placeholder="Desconto (R$)">
+                            <input type="number" id="venda-frete" oninput="calcTotal()" placeholder="Frete (R$)">
+                            <select id="venda-pgto">
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="Pix">Pix</option>
+                                <option value="Cartão">Cartão</option>
+                            </select>
+                            <select id="venda-status">
+                                <option value="Pago">Pago</option>
+                                <option value="Pendente">Pendente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between text-xl font-bold mb-4">
+                            <span>TOTAL:</span>
+                            <span>R$ <span id="venda-total-display">0,00</span></span>
+                        </div>
+                        <button onclick="salvarVenda()" class="w-full btn-gold py-4">Finalizar e Gerar Recibo</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="content-gastos" class="tab-content hidden">
+            <div class="card p-6 max-w-lg mx-auto">
+                <h3 class="font-bold mb-6 uppercase text-sm">Registrar Gasto</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 font-bold uppercase">Descrição</label>
+                        <input type="text" id="gasto-nome" placeholder="Ex: Compra de tintas">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 font-bold uppercase">Fornecedor</label>
+                        <input type="text" id="gasto-forn">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 font-bold uppercase">Valor (R$)</label>
+                        <input type="number" id="gasto-valor">
+                    </div>
+                    <button onclick="salvarGasto()" class="w-full btn-gold">Salvar Gasto</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="content-clientes" class="tab-content hidden">
+            <div class="card p-6">
+                <h3 class="font-bold mb-4 uppercase text-sm">Importar Clientes</h3>
+                <p class="text-xs text-gray-500 mb-4">Selecione um CSV com as colunas: Nome, Telefone, Cidade</p>
+                <div class="flex gap-4">
+                    <input type="file" id="csv-clientes" accept=".csv" class="border-none">
+                    <button onclick="importarCSV('clientes')" class="btn-gold">Importar</button>
+                </div>
+                <div id="lista-cli-view" class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-2"></div>
+            </div>
+        </section>
+
+        <section id="content-produtos" class="tab-content hidden">
+            <div class="card p-6">
+                <h3 class="font-bold mb-4 uppercase text-sm">Importar Produtos</h3>
+                <p class="text-xs text-gray-500 mb-4">Selecione um CSV com as colunas: Nome, Preço</p>
+                <div class="flex gap-4">
+                    <input type="file" id="csv-produtos" accept=".csv" class="border-none">
+                    <button onclick="importarCSV('produtos')" class="btn-gold">Importar</button>
+                </div>
+                <div id="lista-prod-view" class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-2"></div>
+            </div>
+        </section>
+
+        <section id="content-config" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h3 class="font-bold mb-4 uppercase text-sm">Dados da Empresa</h3>
+                    <div class="space-y-3 text-sm">
+                        <input type="text" id="conf-nome" placeholder="Nome da Empresa" value="MugShopp Personalizados">
+                        <input type="text" id="conf-cnpj" placeholder="CNPJ" value="64.137.780/0001-07">
+                        <input type="text" id="conf-end" placeholder="Endereço" value="Rua: Emília, 384 - Gurilândia - Taubaté">
+                        <input type="text" id="conf-fone" placeholder="Telefone" value="(12) 99243.9101">
+                        <input type="text" id="conf-email" placeholder="Email" value="vendas@mugshopp.com.br">
+                        <input type="text" id="conf-site" placeholder="Site" value="www.mugshopp.com.br">
+                        <button onclick="alert('Configurações salvas no navegador!')" class="btn-gold w-full mt-4">Salvar Dados</button>
+                    </div>
+                </div>
+                <div class="card p-6 space-y-6">
+                    <div>
+                        <h3 class="font-bold mb-2 uppercase text-sm">Relatórios</h3>
+                        <button onclick="gerarRelatorioPDF()" class="w-full border border-black py-3 rounded text-xs font-bold uppercase hover:bg-gray-100">Baixar Relatório Mensal (PDF)</button>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2 uppercase text-sm">Segurança</h3>
+                        <div class="flex gap-2">
+                            <button onclick="exportarBackup()" class="flex-1 bg-gray-200 py-2 rounded text-[10px] font-bold">EXPORTAR BACKUP</button>
+                            <label class="flex-1 bg-gray-200 py-2 rounded text-[10px] font-bold text-center cursor-pointer">
+                                IMPORTAR BACKUP
+                                <input type="file" onchange="importarBackup(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- BANCO DE DADOS ---
+        const db = new Dexie("MugShoppDB");
+        db.version(2).stores({
+            vendas: '++id, data, cliente, total',
+            gastos: '++id, data, valor',
+            clientes: '++id, nome',
+            produtos: '++id, nome',
+            config: 'chave'
+        });
+
+        let carrinho = [];
+        let chartObj = null;
+
+        // --- NAVEGAÇÃO ---
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('content-' + id).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
+            document.getElementById('tab-' + id).classList.add('active-tab');
+            
+            if(id === 'home') atualizarDash();
+            if(id === 'pdv') initPDV();
+            if(id === 'clientes') listarClientes();
+            if(id === 'produtos') listarProdutos();
+        }
+
+        // --- DASHBOARD ---
+        async function atualizarDash() {
+            const agora = new Date();
+            const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+            const inicioMesAnt = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
+            const fimMesAnt = new Date(agora.getFullYear(), agora.getMonth(), 0);
+
+            const vendas = await db.vendas.toArray();
+            const gastos = await db.gastos.toArray();
+            
+            const vMes = vendas.filter(v => new Date(v.data) >= inicioMes);
+            const gMes = gastos.filter(g => new Date(g.data) >= inicioMes);
+            const vAnt = vendas.filter(v => new Date(v.data) >= inicioMesAnt && new Date(v.data) <= fimMesAnt);
+
+            const totalV = vMes.reduce((a, b) => a + b.total, 0);
+            const totalG = gMes.reduce((a, b) => a + b.valor, 0);
+            
+            const saldoAnteriorVal = parseFloat(localStorage.getItem('mug_saldo_ant')) || 0;
+            document.getElementById('saldo-anterior').value = saldoAnteriorVal;
+
+            document.getElementById('card-vendas-mes').innerText = `R$ ${totalV.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('card-gastos-mes').innerText = `R$ ${totalG.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('card-saldo-total').innerText = `R$ ${(totalV - totalG + saldoAnteriorVal).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            
+            document.getElementById('count-atua').innerText = `${vMes.length} vendas`;
+            document.getElementById('count-ant').innerText = `${vAnt.length} vendas`;
+
+            renderizarGrafico(totalV, totalG);
+        }
+
+        function renderizarGrafico(v, g) {
+            const ctx = document.getElementById('chartVendasGastos').getContext('2d');
+            if(chartObj) chartObj.destroy();
+            chartObj = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Vendas', 'Gastos'],
+                    datasets: [{
+                        label: 'R$',
+                        data: [v, g],
+                        backgroundColor: ['#bf9a5a', '#1a1a1a']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function salvarSaldoAnterior() {
+            localStorage.setItem('mug_saldo_ant', document.getElementById('saldo-anterior').value);
+            atualizarDash();
+        }
+
+        // --- LÓGICA PDV ---
+        async function initPDV() {
+            document.getElementById('venda-data').valueAsDate = new Date();
+            const clis = await db.clientes.toArray();
+            const prods = await db.produtos.toArray();
+            
+            const selCli = document.getElementById('venda-cliente');
+            selCli.innerHTML = '<option value="Consumidor Final">Consumidor Final</option>' + 
+                clis.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
+
+            const selProd = document.getElementById('venda-produto-select');
+            selProd.innerHTML = prods.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco}</option>`).join('');
+        }
+
+        async function addItem() {
+            const id = document.getElementById('venda-produto-select').value;
+            if(!id) return;
+            const p = await db.produtos.get(parseInt(id));
+            carrinho.push({ ...p, qtd: 1, subtotal: p.preco });
+            renderCarrinho();
+        }
+
+        function renderCarrinho() {
+            const lista = document.getElementById('carrinho-lista');
+            lista.innerHTML = carrinho.map((item, i) => `
+                <tr class="border-b">
+                    <td class="py-3">${item.nome}</td>
+                    <td><input type="number" value="${item.qtd}" onchange="editQtd(${i}, this.value)" class="w-12 text-center border"></td>
+                    <td>R$ ${item.preco.toFixed(2)}</td>
+                    <td class="font-bold">R$ ${item.subtotal.toFixed(2)}</td>
+                    <td><button onclick="remove(${i})" class="text-red-400">✕</button></td>
+                </tr>
+            `).join('');
+            calcTotal();
+        }
+
+        function editQtd(i, val) {
+            carrinho[i].qtd = parseFloat(val) || 1;
+            carrinho[i].subtotal = carrinho[i].qtd * carrinho[i].preco;
+            renderCarrinho();
+        }
+
+        function remove(i) { carrinho.splice(i,1); renderCarrinho(); }
+
+        function calcTotal() {
+            const sub = carrinho.reduce((a, b) => a + b.subtotal, 0);
+            const desc = parseFloat(document.getElementById('venda-desconto').value) || 0;
+            const frete = parseFloat(document.getElementById('venda-frete').value) || 0;
+            const total = sub - desc + frete;
+            document.getElementById('venda-total-display').innerText = total.toFixed(2).replace('.', ',');
+            return total;
+        }
+
+        async function salvarVenda() {
+            const total = calcTotal();
+            if(carrinho.length === 0) return alert("Adicione produtos!");
+
+            const venda = {
+                cliente: document.getElementById('venda-cliente').value,
+                data: document.getElementById('venda-data').value,
+                produtos: [...carrinho],
+                total: total,
+                pagamento: document.getElementById('venda-pgto').value,
+                status: document.getElementById('venda-status').value
+            };
+
+            await db.vendas.add(venda);
+            gerarRecibo(venda);
+            carrinho = [];
+            renderCarrinho();
+          alert("Venda Finalizada!");
+        }
+
+        // --- RECIBO E RELATÓRIO ---
+        function gerarRecibo(v) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: [80, 150] });
+            
+            doc.setFontSize(10);
+            doc.text("MUGSHOPP PERSONALIZADOS", 40, 10, {align: 'center'});
+            doc.setFontSize(6);
+            doc.text([
+                document.getElementById('conf-cnpj').value,
+                document.getElementById('conf-end').value,
+                document.getElementById('conf-fone').value
+            ], 40, 14, {align: 'center'});
+
+            doc.line(5, 22, 75, 22);
+            doc.text(`CLIENTE: ${v.cliente}`, 5, 26);
+            doc.text(`DATA: ${v.data}`, 5, 29);
+
+            let y = 35;
+            v.produtos.forEach(p => {
+                doc.text(`${p.qtd}x ${p.nome.substring(0,20)}`, 5, y);
+                doc.text(`R$ ${p.subtotal.toFixed(2)}`, 75, y, {align: 'right'});
+                y += 4;
+            });
+
+            doc.line(5, y, 75, y);
+            doc.setFontSize(8);
+            doc.text(`TOTAL: R$ ${v.total.toFixed(2)}`, 75, y + 6, {align: 'right'});
+            doc.text(`PAGAMENTO: ${v.pagamento}`, 5, y + 6);
+            
+            doc.save(`recibo_${Date.now()}.pdf`);
+        }
+
+        async function gerarRelatorioPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const vendas = await db.vendas.toArray();
+            const gastos = await db.gastos.toArray();
+
+            doc.text("Relatório Mensal - MugShopp", 14, 15);
+            
+            const rowsVendas = vendas.map(v => [v.data, v.cliente, v.total.toFixed(2), v.status]);
+            doc.autoTable({ head: [['Data', 'Cliente', 'Total', 'Status']], body: rowsVendas, startY: 25 });
+            
+            doc.save('relatorio_mensal.pdf');
+        }
+
+        // --- GASTOS ---
+        async function salvarGasto() {
+            const gasto = {
+                nome: document.getElementById('gasto-nome').value,
+                fornecedor: document.getElementById('gasto-forn').value,
+                valor: parseFloat(document.getElementById('gasto-valor').value) || 0,
+                data: new Date().toISOString().split('T')[0]
+            };
+            await db.gastos.add(gasto);
+            alert("Gasto registrado!");
+            showTab('home');
+        }
+
+        // --- CSV E BACKUP ---
+        function importarCSV(tipo) {
+            const file = document.getElementById(`csv-${tipo}`).files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const linhas = e.target.result.split('\n').slice(1);
+                for(let l of linhas) {
+                    const c = l.split(',');
+                    if(c.length < 2) continue;
+                    if(tipo === 'clientes') await db.clientes.add({ nome: c[0].trim(), telefone: c[1]?.trim(), cidade: c[2]?.trim() });
+                    else await db.produtos.add({ nome: c[0].trim(), preco: parseFloat(c[1]) || 0 });
+                }
+                alert("Importação concluída!");
+                location.reload();
+            };
+            reader.readAsText(file);
+        }
+
+        async function exportarBackup() {
+            const dados = {
+                vendas: await db.vendas.toArray(),
+                gastos: await db.gastos.toArray(),
+                clientes: await db.clientes.toArray(),
+                produtos: await db.produtos.toArray()
+            };
+            const blob = new Blob([JSON.stringify(dados)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `backup_mugshopp_${new Date().toLocaleDateString()}.json`;
+            a.click();
+        }
+
+        async function importarBackup(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const dados = JSON.parse(ev.target.result);
+                await db.vendas.bulkAdd(dados.vendas);
+                await db.gastos.bulkAdd(dados.gastos);
+                await db.clientes.bulkAdd(dados.clientes);
+                await db.produtos.bulkAdd(dados.produtos);
+                alert("Dados restaurados!");
+                location.reload();
+            };
+            reader.readAsText(file);
+        }
+
+        async function listarClientes() {
+            const list = await db.clientes.toArray();
+            document.getElementById('lista-cli-view').innerHTML = list.map(c => `
+                <div class="p-2 border text-[10px] rounded bg-gray-50">${c.nome}</div>
+            `).join('');
+        }
+
+        async function listarProdutos() {
+            const list = await db.produtos.toArray();
+            document.getElementById('lista-prod-view').innerHTML = list.map(p => `
+                <div class="p-2 border text-[10px] rounded bg-gray-50">${p.nome} - R$ ${p.preco}</div>
+            `).join('');
+        }
+
+        // Inicializar
+        window.onload = () => atualizarDash();
+    </script>
+</body>
+</html>
+     
