@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MugShopp PDV</title>
+    <title>MugShopp PDV 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #bf9a5a; --bg: #f8f9fa; }
-        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 90px; color: #1a1a1a; overflow-x: hidden; }
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 90px; color: #1a1a1a; }
         .card-3d { background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.02); overflow: hidden; }
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 10px; font-weight: 600; background: none; border: none; cursor: pointer; outline: none !important; }
@@ -41,7 +41,7 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="card-3d p-5 text-center bg-gray-50">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Referência</p>
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Ref. Anterior</p>
                     <input type="number" id="vendas-manual-anterior" onchange="salvarMeta()" class="text-xl font-bold text-center bg-transparent border-none w-full" value="0">
                 </div>
                 <div class="card-3d p-5 text-center border-b-4 border-[#10b981]">
@@ -54,7 +54,7 @@
         <section id="content-vender" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-4">
                 <input type="hidden" id="venda-id-edit">
-                <select id="venda-cliente"><option value="">Selecionar Cliente</option></select>
+                <select id="venda-cliente"><option value="">Consumidor Final</option></select>
                 <div class="grid grid-cols-12 gap-2">
                     <select id="venda-produto-select" class="col-span-7"></select>
                     <input type="number" id="venda-qtd" value="1" min="1" class="col-span-3 text-center">
@@ -67,25 +67,26 @@
                 </div>
                 <div class="pt-4 border-t space-y-3">
                     <div class="flex justify-between font-bold text-xl"><span>Total:</span><span class="text-[#bf9a5a]">R$ <span id="venda-total-display">0,00</span></span></div>
-                    <button onclick="salvarVenda()" id="btn-venda-acao" class="btn-gold">Finalizar Venda & Recibo</button>
+                    <button onclick="salvarVenda()" id="btn-venda-acao" class="btn-gold">Finalizar & Recibo</button>
                 </div>
             </div>
-            <h3 class="font-bold text-xs uppercase px-2">Histórico de Vendas</h3>
+            <h3 class="font-bold text-xs uppercase px-2 mt-4">Histórico de Vendas</h3>
             <div id="lista-vendas-view" class="space-y-2 pb-10"></div>
         </section>
 
         <section id="content-clientes" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-3">
                 <input type="hidden" id="cli-id-edit">
-                <input type="text" id="cli-nome" placeholder="Nome Completo"><div class="grid grid-cols-2 gap-2"><input type="text" id="cli-fone" placeholder="WhatsApp"><input type="email" id="cli-email" placeholder="E-mail"></div>
-                <div class="grid grid-cols-2 gap-2"><input type="text" id="cli-cidade" placeholder="Cidade"><input type="text" id="cli-cpf" placeholder="CPF"></div>
+                <input type="text" id="cli-nome" placeholder="Nome Completo">
+                <div class="grid grid-cols-2 gap-2"><input type="text" id="cli-fone" placeholder="WhatsApp"><input type="email" id="cli-email" placeholder="E-mail"></div>
+                <div class="grid grid-cols-2 gap-2"><input type="text" id="cli-cidade" placeholder="Cidade"><input type="text" id="cli-cpf" placeholder="CPF/CNPJ"></div>
                 <input type="text" id="cli-endereco" placeholder="Endereço Completo">
                 <button onclick="salvarCliente()" id="btn-cli-acao" class="btn-gold">Salvar Cliente</button>
             </div>
             <div id="lista-cli-view" class="space-y-2"></div>
         </section>
 
-        <section id="content-produtos" class="tab-content hidden space-y-4"><div class="card-3d p-6 space-y-3"><input type="text" id="prod-nome" placeholder="Produto"><input type="number" id="prod-preco" placeholder="Preço"><button onclick="salvarProd()" class="btn-gold">Cadastrar</button></div><div id="lista-prod-view" class="space-y-2"></div></section>
+        <section id="content-produtos" class="tab-content hidden space-y-4"><div class="card-3d p-6 space-y-3"><input type="text" id="prod-nome" placeholder="Produto"><input type="number" id="prod-preco" placeholder="R$"><button onclick="salvarProd()" class="btn-gold">Cadastrar</button></div><div id="lista-prod-view" class="space-y-2"></div></section>
         <section id="content-gastos" class="tab-content hidden space-y-4"><div class="card-3d p-6 space-y-3"><input type="hidden" id="gasto-id-edit"><input type="text" id="gasto-nome" placeholder="Descrição"><input type="number" id="gasto-valor" placeholder="R$"><input type="date" id="gasto-data"><button onclick="salvarGasto()" id="btn-gasto-acao" class="btn-gold">Lançar Saída</button></div><div id="lista-gastos-view" class="space-y-2"></div></section>
         <section id="content-ajustes" class="tab-content hidden space-y-4 text-center"><div class="card-3d p-6 space-y-4"><button onclick="exportarBackup()" class="btn-outline text-blue-600">Exportar Backup (.JSON)</button><label class="btn-outline text-green-600 cursor-pointer block">Importar Backup <input type="file" id="up-bkp" class="hidden" onchange="importarBackup(this)"></label></div></section>
     </main>
@@ -96,16 +97,15 @@
         <button onclick="showTab('clientes')" id="nav-clientes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Cli</button>
         <button onclick="showTab('produtos')" id="nav-produtos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>Itens</button>
         <button onclick="showTab('gastos')" id="nav-gastos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line></svg>Saídas</button>
-        <button onclick="showTab('ajustes')" id="nav-ajustes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09"></path></svg>Ajustes</button>
-    </nav>
+        <button onclick="showTab('ajustes')" id="nav-ajustes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09"></path></svg>Config</button>
+                                                                                                                                                                                                                                                                                                                  </nav>
         <script>
         const db = new Dexie("MugShoppDB");
-        db.version(17).stores({
+        db.version(20).stores({
             vendas: '++id, data, mes, total, status',
             gastos: '++id, data, mes, valor',
             clientes: '++id, nome, fone, email, cidade, cpf, endereco',
-            produtos: '++id, nome, preco',
-            meta: 'id'
+            produtos: '++id, nome, preco'
         });
 
         let carrinho = []; let chartObj = null;
@@ -126,118 +126,109 @@
             const mesRef = new Date().toLocaleDateString('pt-BR').slice(3);
             const v = await db.vendas.where('mes').equals(mesRef).toArray();
             const g = await db.gastos.where('mes').equals(mesRef).toArray();
-            const totV = v.reduce((a,b)=>a+b.total,0); const totG = g.reduce((a,b)=>a+b.valor,0);
+            const totV = v.reduce((a,b)=>a+b.total, 0); const totG = g.reduce((a,b)=>a+b.valor, 0);
             document.getElementById('vendas-mes-atual').innerText = `R$ ${totV.toFixed(2)}`;
             const ctx = document.getElementById('chartLinha').getContext('2d');
             if(chartObj) chartObj.destroy();
             chartObj = new Chart(ctx, { type: 'doughnut', data: { labels: ['Entradas','Saídas'], datasets:[{data:[totV, totG], backgroundColor:['#10b981','#f87171']}] }, options: { plugins: { legend: { position: 'bottom' }}}});
         }
 
-        // --- GESTÃO DE VENDAS (EDITAR/EXCLUIR) ---
+        async function initVender() {
+            const clis = await db.clientes.toArray(); const prods = await db.produtos.toArray();
+            document.getElementById('venda-cliente').innerHTML = '<option value="">Consumidor Final</option>' + clis.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+            document.getElementById('venda-produto-select').innerHTML = '<option value="">Selecionar Produto...</option>' + prods.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`).join('');
+        }
+
+        function addItem() {
+            const select = document.getElementById('venda-produto-select');
+            db.produtos.get(parseInt(select.value)).then(p => {
+                if(!p) return;
+                const qtd = parseInt(document.getElementById('venda-qtd').value);
+                carrinho.push({...p, qtd, subtotal: p.preco * qtd});
+                renderCarrinho();
+            });
+        }
+
+        function renderCarrinho() {
+            document.getElementById('carrinho-lista').innerHTML = carrinho.map((it, i) => `<div class="flex justify-between py-1 text-xs font-bold"><span>${it.qtd}x ${it.nome}</span><span>R$ ${it.subtotal.toFixed(2)}</span></div>`).join('');
+            document.getElementById('venda-total-display').innerText = carrinho.reduce((a,b)=>a+b.subtotal, 0).toFixed(2);
+        }
+
         async function salvarVenda() {
             if(!carrinho.length) return;
             const id = document.getElementById('venda-id-edit').value;
             const cid = document.getElementById('venda-cliente').value;
+            const clienteData = cid ? await db.clientes.get(parseInt(cid)) : {nome: "Consumidor Final", cpf: "-", endereco: "-"};
             const v = {
                 data: new Date().toLocaleDateString('pt-BR'), mes: new Date().toLocaleDateString('pt-BR').slice(3),
-                cliente: cid ? await db.clientes.get(parseInt(cid)) : {nome: "Consumidor Final", cpf: "-", endereco: "-"},
-                itens: [...carrinho], total: carrinho.reduce((a,b)=>a+b.subtotal,0),
+                cliente: clienteData, itens: [...carrinho], total: carrinho.reduce((a,b)=>a+b.subtotal,0),
                 pagamento: document.getElementById('venda-pagamento').value, status: document.getElementById('venda-status').value
             };
             if(id) await db.vendas.update(parseInt(id), v); else await db.vendas.add(v);
-            gerarReciboPDF(v); resetVendaForm(); listarVendas();
-        }
-
-        function editVenda(v) {
-            document.getElementById('venda-id-edit').value = v.id;
-            document.getElementById('venda-cliente').value = v.cliente.id || "";
-            carrinho = [...v.itens];
-            document.getElementById('venda-pagamento').value = v.pagamento;
-            document.getElementById('venda-status').value = v.status;
-            document.getElementById('btn-venda-acao').innerText = "Atualizar Venda";
-            renderCarrinho(); window.scrollTo(0,0);
-        }
-
-        function resetVendaForm() {
-            document.getElementById('venda-id-edit').value = "";
-            carrinho = []; renderCarrinho();
-            document.getElementById('btn-venda-acao').innerText = "Finalizar Venda & Recibo";
+            gerarReciboPDF(v); resetVendaForm(); listarVendas(); atualizarDash();
         }
 
         async function listarVendas() {
             const d = await db.vendas.reverse().toArray();
             document.getElementById('lista-vendas-view').innerHTML = d.map(v => `
                 <div class="card-3d p-4 flex justify-between items-center text-xs">
-                    <div onclick='gerarReciboPDF(${JSON.stringify(v)})'><b>${v.cliente.nome}</b><p class="text-gray-400">${v.data} - R$ ${v.total.toFixed(2)}</p></div>
+                    <div onclick='gerarReciboPDF(${JSON.stringify(v)})' class="cursor-pointer"><b>${v.cliente.nome}</b><p class="text-gray-400">${v.data} - R$ ${v.total.toFixed(2)}</p></div>
                     <div class="flex gap-3 font-bold uppercase">
                         <span onclick='editVenda(${JSON.stringify(v)})' class="text-blue-500">Edit</span>
-                        <span onclick="if(confirm('Excluir venda?')) db.vendas.delete(${v.id}).then(listarVendas)" class="text-red-400">Excluir</span>
+                        <span onclick="if(confirm('Excluir venda?')) db.vendas.delete(${v.id}).then(() => {listarVendas(); atualizarDash();})" class="text-red-400">Excluir</span>
                     </div>
                 </div>`).join('');
         }
 
-        // --- RECIBO PROFISSIONAL ---
+        function editVenda(v) {
+            document.getElementById('venda-id-edit').value = v.id;
+            document.getElementById('venda-cliente').value = v.cliente.id || "";
+            carrinho = [...v.itens]; renderCarrinho();
+            document.getElementById('venda-pagamento').value = v.pagamento;
+            document.getElementById('venda-status').value = v.status;
+            document.getElementById('btn-venda-acao').innerText = "Atualizar Venda";
+            window.scrollTo(0,0);
+        }
+
+        function resetVendaForm() {
+            document.getElementById('venda-id-edit').value = ""; carrinho = []; renderCarrinho();
+            document.getElementById('btn-venda-acao').innerText = "Finalizar & Recibo";
+        }
+
         async function gerarReciboPDF(v) {
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            const logo = "https://i.postimg.cc/T190pkF7/Copia-de-Novo-Logotipo-2026-20260127-183120-0000.png";
-            
-            // Dados da Empresa
             doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("MugShopp E.D. e Personalizados", 105, 20, {align:'center'});
             doc.setFontSize(10); doc.setFont("helvetica", "normal");
-            doc.text("CNPJ: 64.137.780/0001-07", 105, 26, {align:'center'});
-            doc.text("Rua Emília 384 - Gurilândia - Taubaté", 105, 31, {align:'center'});
-            doc.text("Fone: (12) 99243.9101 | Site: www.mugshopp.com.br", 105, 36, {align:'center'});
-            doc.line(10, 42, 200, 42);
-
-            // Dados Cliente
-            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("DADOS DO CLIENTE", 10, 52);
-            doc.setFontSize(10); doc.setFont("helvetica", "normal");
-            doc.text(`Nome: ${v.cliente.nome}`, 10, 58); doc.text(`CPF/CNPJ: ${v.cliente.cpf}`, 10, 63); doc.text(`Endereço: ${v.cliente.endereco}`, 10, 68);
-
-            // Dados Venda
-            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("RESUMO DO PEDIDO", 130, 52);
-            doc.setFontSize(10); doc.setFont("helvetica", "normal");
-            doc.text(`Data: ${v.data}`, 130, 58); doc.text(`Pagamento: ${v.pagamento}`, 130, 63); doc.text(`Status: ${v.status}`, 130, 68);
-
-            // Tabela
-            doc.autoTable({ startY: 75, head: [['Qtd', 'Produto', 'V. Unit', 'Total']], body: v.itens.map(i=>[i.qtd, i.nome, `R$ ${i.preco.toFixed(2)}`, `R$ ${i.subtotal.toFixed(2)}`]), headStyles: {fillColor: [0, 0, 0], fontSize: 11}, styles: {fontSize: 10} });
-            
+            doc.text("CNPJ: 64.137.780/0001-07 | Rua Emília 384 - Taubaté", 105, 27, {align:'center'});
+            doc.text("Fone: (12) 99243.9101 | www.mugshopp.com.br", 105, 32, {align:'center'});
+            doc.line(10, 38, 200, 38);
+            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text(`CLIENTE: ${v.cliente.nome}`, 10, 48);
+            doc.text(`DATA: ${v.data} | PGTO: ${v.pagamento}`, 10, 54);
+            doc.autoTable({ startY: 60, head: [['Qtd', 'Produto', 'V. Unit', 'Total']], body: v.itens.map(i=>[i.qtd, i.nome, `R$ ${i.preco.toFixed(2)}`, `R$ ${i.subtotal.toFixed(2)}`]), headStyles: {fillColor: [0, 0, 0]} });
             const finalY = doc.lastAutoTable.finalY;
-            doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text(`TOTAL GERAL: R$ ${v.total.toFixed(2)}`, 195, finalY + 15, {align:'right'});
-            
-            // Rodapé
+            doc.setFontSize(16); doc.text(`TOTAL GERAL: R$ ${v.total.toFixed(2)}`, 195, finalY + 15, {align:'right'});
             doc.setFontSize(12); doc.text("Agradecemos sua confiança.", 105, finalY + 30, {align:'center'});
-            doc.save(`MugShopp_Recibo_${v.cliente.nome}.pdf`);
+            doc.save(`Recibo_MugShopp_${v.cliente.nome}.pdf`);
         }
 
-        // --- FUNÇÕES AUXILIARES (MANUTENÇÃO) ---
-        async function initVender() {
-            const clis = await db.clientes.toArray(); const prods = await db.produtos.toArray();
-            document.getElementById('venda-cliente').innerHTML = '<option value="">Consumidor Final</option>' + clis.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-            document.getElementById('venda-produto-select').innerHTML = '<option value="">Produto...</option>' + prods.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`).join('');
-        }
-        async function addItem() {
-            const p = await db.produtos.get(parseInt(document.getElementById('venda-produto-select').value)); if(!p) return;
-            const qtd = parseInt(document.getElementById('venda-qtd').value); carrinho.push({...p, qtd, subtotal: p.preco * qtd}); renderCarrinho();
-        }
-        function renderCarrinho() {
-            document.getElementById('carrinho-lista').innerHTML = carrinho.map((it, i) => `<div class="flex justify-between py-1 text-xs font-bold"><span>${it.qtd}x ${it.nome}</span><span>R$ ${it.subtotal.toFixed(2)}</span></div>`).join('');
-            document.getElementById('venda-total-display').innerText = carrinho.reduce((a,b)=>a+b.subtotal,0).toFixed(2);
-        }
         async function salvarCliente() {
-            const id = document.getElementById('cli-id-edit').value; const data = { nome: document.getElementById('cli-nome').value, fone: document.getElementById('cli-fone').value, email: document.getElementById('cli-email').value, cidade: document.getElementById('cli-cidade').value, cpf: document.getElementById('cli-cpf').value, endereco: document.getElementById('cli-endereco').value };
-            if(id) await db.clientes.update(parseInt(id), data); else await db.clientes.add(data); resetCliForm(); listarClientes();
+            const id = document.getElementById('cli-id-edit').value;
+            const data = { nome: document.getElementById('cli-nome').value, fone: document.getElementById('cli-fone').value, email: document.getElementById('cli-email').value, cidade: document.getElementById('cli-cidade').value, cpf: document.getElementById('cli-cpf').value, endereco: document.getElementById('cli-endereco').value };
+            if(id) await db.clientes.update(parseInt(id), data); else await db.clientes.add(data);
+            resetCliForm(); listarClientes();
         }
-        function editCliente(c) { document.getElementById('cli-id-edit').value = c.id; document.getElementById('cli-nome').value = c.nome; document.getElementById('cli-fone').value = c.fone; document.getElementById('cli-email').value = c.email; document.getElementById('cli-cidade').value = c.cidade; document.getElementById('cli-cpf').value = c.cpf; document.getElementById('cli-endereco').value = c.endereco; document.getElementById('btn-cli-acao').innerText = "Atualizar"; window.scrollTo(0,0); }
+        function editCliente(c) { document.getElementById('cli-id-edit').value = c.id; document.getElementById('cli-nome').value = c.nome; document.getElementById('cli-fone').value = c.fone; document.getElementById('cli-email').value = c.email; document.getElementById('cli-cidade').value = c.cidade; document.getElementById('cli-cpf').value = c.cpf; document.getElementById('cli-endereco').value = c.endereco; document.getElementById('btn-cli-acao').innerText = "Atualizar"; }
         function resetCliForm() { document.getElementById('cli-id-edit').value = ""; document.querySelectorAll('#content-clientes input').forEach(i => i.value = ""); document.getElementById('btn-cli-acao').innerText = "Salvar Cliente"; }
-        async function listarClientes() { const d = await db.clientes.toArray(); document.getElementById('lista-cli-view').innerHTML = d.map(c => `<div class="card-3d p-4 flex justify-between items-center" onclick='editCliente(${JSON.stringify(c)})'><div><b>${c.nome}</b><p class="text-xs text-gray-400">${c.fone}</p></div><span class="text-xs text-blue-500 font-bold">EDITAR</span></div>`).join(''); }
-        async function salvarGasto() { const id = document.getElementById('gasto-id-edit').value; const dt = document.getElementById('gasto-data').value || new Date().toISOString().split('T')[0]; const data = { nome: document.getElementById('gasto-nome').value, valor: parseFloat(document.getElementById('gasto-valor').value), data: dt, mes: dt.split('-')[1]+'/'+dt.split('-')[0] }; if(id) await db.gastos.update(parseInt(id), data); else await db.gastos.add(data); resetGastoForm(); listarGastos(); }
-        async function listarGastos() { const d = await db.gastos.reverse().toArray(); document.getElementById('lista-gastos-view').innerHTML = d.map(g => `<div class="card-3d p-4 flex justify-between items-center"><div><b>${g.nome}</b><p class="text-red-500">R$ ${g.valor.toFixed(2)}</p></div><button onclick="if(confirm('Excluir?')) db.gastos.delete(${g.id}).then(listarGastos)" class="text-gray-300 font-bold">✕</button></div>`).join(''); }
+        async function listarClientes() { const d = await db.clientes.toArray(); document.getElementById('lista-cli-view').innerHTML = d.map(c => `<div class="card-3d p-4 flex justify-between items-center" onclick='editCliente(${JSON.stringify(c)})'><div><b>${c.nome}</b><p class="text-xs text-gray-400">${c.fone}</p></div><span class="text-xs text-blue-500 font-bold uppercase">Edit</span></div>`).join(''); }
         async function salvarProd() { await db.produtos.add({nome: document.getElementById('prod-nome').value, preco: parseFloat(document.getElementById('prod-preco').value)}); listarProdutos(); }
         async function listarProdutos() { const d = await db.produtos.toArray(); document.getElementById('lista-prod-view').innerHTML = d.map(p => `<div class="card-3d p-3 flex justify-between text-xs font-bold"><span>${p.nome}</span><span>R$ ${p.preco.toFixed(2)}</span></div>`).join(''); }
-        async function exportarBackup() { const b = { v: await db.vendas.toArray(), g: await db.gastos.toArray(), c: await db.clientes.toArray(), p: await db.produtos.toArray() }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(b)], {type:"application/json"})); a.download="mug_backup.json"; a.click(); }
-        function importarBackup(input) { const reader = new FileReader(); reader.onload = async (e) => { const d = JSON.parse(e.target.result); await db.vendas.bulkPut(d.v || []); await db.gastos.bulkPut(d.g || []); await db.clientes.bulkPut(d.c || []); await db.produtos.bulkPut(d.p || []); location.reload(); }; reader.readAsText(input.files[0]); }
+        async function salvarGasto() { const id = document.getElementById('gasto-id-edit').value; const dt = document.getElementById('gasto-data').value || new Date().toISOString().split('T')[0]; const data = { nome: document.getElementById('gasto-nome').value, valor: parseFloat(document.getElementById('gasto-valor').value), data: dt, mes: dt.split('-')[1]+'/'+dt.split('-')[0] }; if(id) await db.gastos.update(parseInt(id), data); else await db.gastos.add(data); listarGastos(); atualizarDash(); }
+        async function listarGastos() { const d = await db.gastos.reverse().toArray(); document.getElementById('lista-gastos-view').innerHTML = d.map(g => `<div class="card-3d p-4 flex justify-between items-center"><div><b>${g.nome}</b><p class="text-red-500">R$ ${g.valor.toFixed(2)}</p></div><button onclick="db.gastos.delete(${g.id}).then(() => {listarGastos(); atualizarDash();})" class="text-gray-300">✕</button></div>`).join(''); }
+        function exportarBackup() { db.vendas.toArray().then(v => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({v})], {type:"application/json"})); a.download="backup.json"; a.click(); }); }
+        function importarBackup(i) { const r = new FileReader(); r.onload = (e) => { const d = JSON.parse(e.target.result); db.vendas.bulkPut(d.v).then(() => location.reload()); }; r.readAsText(i.files[0]); }
         window.onload = () => showTab('home');
     </script>
 </body>
 </html>
+
+                                                                                           
