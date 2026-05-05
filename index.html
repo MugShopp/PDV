@@ -3,104 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MugShopp - Gestão v3</title>
+    <title>MugShopp - Business Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #bf9a5a; --off-white: #fcfaf7; }
-        body { background-color: var(--off-white); font-family: 'Inter', sans-serif; color: #1a1a1a; }
-        .active-tab { border-bottom: 3px solid var(--gold); color: var(--gold); font-weight: 700; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); }
-        input, select { border-bottom: 1px solid #e2e8f0; padding: 10px 0; outline: none; background: transparent; width: 100%; transition: 0.3s; }
-        input:focus { border-color: var(--gold); }
-        .btn-gold { background-color: black; color: white; padding: 10px 20px; border-radius: 8px; transition: 0.3s; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; }
-        .btn-gold:hover { background-color: var(--gold); }
-        .btn-outline { border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 6px; font-size: 11px; transition: 0.2s; }
-        .btn-outline:hover { background: #f8fafc; border-color: var(--gold); }
+        :root { --gold: #bf9a5a; --bg: #fcfaf7; }
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #1a1a1a; }
+        
+        /* Efeito 3D nos Cards */
+        .card-3d { 
+            background: white; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.02);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(191, 154, 90, 0.1);
+        }
+        .card-3d:hover { 
+            transform: translateY(-8px) scale(1.01); 
+            box-shadow: 0 30px 60px -15px rgba(191, 154, 90, 0.15);
+        }
+
+        .active-tab { color: var(--gold); font-weight: 800; border-bottom: 3px solid var(--gold); }
+        input, select { border-radius: 12px; border: 1px solid #eee; padding: 12px 16px; outline: none; background: #fff; width: 100%; transition: 0.3s; }
+        input:focus { border-color: var(--gold); ring: 2px solid rgba(191, 154, 90, 0.2); }
+        
+        .btn-gold { background: black; color: white; padding: 12px 24px; border-radius: 14px; font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; transition: 0.3s; }
+        .btn-gold:hover { background: var(--gold); color: black; transform: scale(1.05); }
+        
+        .tab-btn { padding-bottom: 8px; font-size: 0.7rem; letter-spacing: 2px; color: #94a3b8; transition: 0.3s; }
+        
+        /* Scrollbar Personalizada */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
 
-    <header class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-        <div class="text-center md:text-left">
-            <h1 class="text-2xl font-bold tracking-tight">MUGSHOPP <span class="text-[#bf9a5a]">SISTEMA</span></h1>
-            <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em]">Gestão de Vendas & Produtos</p>
+    <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-12 gap-8">
+        <div class="flex items-center gap-4">
+            <img id="logo-preview" src="https://i.postimg.cc/T190pkF7/Copia-de-Novo-Logotipo-2026-20260127-183120-0000.png" class="h-14 w-14 object-contain rounded-full shadow-lg border-2 border-white">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tighter">MUGSHOPP <span class="text-[#bf9a5a]">BI</span></h1>
+                <p class="text-[9px] text-gray-400 uppercase tracking-[0.4em] font-bold">Smart Management System</p>
+            </div>
         </div>
-        <nav class="flex space-x-8 overflow-x-auto w-full md:w-auto pb-2">
-            <button onclick="showTab('home')" id="tab-home" class="tab-btn active-tab pb-1">DASHBOARD</button>
-            <button onclick="showTab('pdv')" id="tab-pdv" class="tab-btn pb-1">VENDAS</button>
-            <button onclick="showTab('gastos')" id="tab-gastos" class="tab-btn pb-1">GASTOS</button>
-            <button onclick="showTab('clientes')" id="tab-clientes" class="tab-btn pb-1">CLIENTES</button>
-            <button onclick="showTab('produtos')" id="tab-produtos" class="tab-btn pb-1">PRODUTOS</button>
-            <button onclick="showTab('config')" id="tab-config" class="tab-btn pb-1">⚙️</button>
+        <nav class="flex space-x-8 overflow-x-auto w-full md:w-auto pb-4 border-b md:border-none justify-center">
+            <button onclick="showTab('home')" id="tab-home" class="tab-btn active-tab uppercase">Dashboard</button>
+            <button onclick="showTab('pdv')" id="tab-pdv" class="tab-btn uppercase">Vendas</button>
+            <button onclick="showTab('gastos')" id="tab-gastos" class="tab-btn uppercase">Gastos</button>
+            <button onclick="showTab('clientes')" id="tab-clientes" class="tab-btn uppercase">Clientes</button>
+            <button onclick="showTab('produtos')" id="tab-produtos" class="tab-btn uppercase">Produtos</button>
+            <button onclick="showTab('config')" id="tab-config" class="tab-btn uppercase">Ajustes</button>
         </nav>
     </header>
 
-    <main class="max-w-6xl mx-auto">
+    <main class="max-w-7xl mx-auto">
         <section id="content-home" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="card p-8"><span class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Vendas do Mês</span><h2 id="card-vendas-mes" class="text-3xl font-light mt-2">R$ 0,00</h2></div>
-                <div class="card p-8"><span class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Gastos do Mês</span><h2 id="card-gastos-mes" class="text-3xl font-light mt-2 text-red-400">R$ 0,00</h2></div>
-                <div class="card p-8 border-r-4 border-[#bf9a5a]"><span class="text-[10px] text-gray-400 uppercase font-black tracking-widest text-[#bf9a5a]">Saldo Disponível</span><h2 id="card-saldo-total" class="text-3xl font-bold mt-2">R$ 0,00</h2></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div class="card-3d p-8"><span class="text-[10px] font-bold text-gray-400 uppercase">Receita Bruta</span><h2 id="card-vendas-mes" class="text-4xl font-light mt-2">R$ 0,00</h2></div>
+                <div class="card-3d p-8"><span class="text-[10px] font-bold text-gray-400 uppercase">Despesas</span><h2 id="card-gastos-mes" class="text-4xl font-light mt-2 text-red-400">R$ 0,00</h2></div>
+                <div class="card-3d p-8 bg-black text-white"><span class="text-[10px] font-bold text-[#bf9a5a] uppercase">Lucro Líquido</span><h2 id="card-saldo-total" class="text-4xl font-bold mt-2">R$ 0,00</h2></div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="card p-8"><h3 class="font-bold mb-6 text-xs uppercase tracking-widest">Desempenho Financeiro</h3><canvas id="chartVendasGastos" height="180"></canvas></div>
-                <div class="space-y-6">
-                    <div class="card p-8"><h3 class="font-bold mb-2 text-xs uppercase tracking-widest">Ajuste de Caixa</h3><input type="number" id="saldo-anterior" onchange="salvarSaldoAnterior()" placeholder="R$ 0,00"></div>
-                    <div class="card p-8 flex justify-between">
-                        <div><p class="text-[9px] text-gray-400 uppercase font-bold">Mês Passado</p><p id="count-ant" class="text-2xl font-light">0</p></div>
-                        <div class="text-right border-l pl-8"><p class="text-[9px] text-[#bf9a5a] uppercase font-bold">Mês Atual</p><p id="count-atua" class="text-2xl font-bold">0</p></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card-3d p-8"><h3 class="font-bold text-xs uppercase mb-8">Performance Comercial</h3><canvas id="chartVendasGastos" height="150"></canvas></div>
+                <div class="card-3d p-8 flex flex-col justify-center">
+                    <h3 class="font-bold text-xs uppercase mb-4 text-center">Resumo Rápido</h3>
+                    <div class="flex justify-around text-center">
+                        <div><p class="text-[10px] text-gray-400 uppercase font-bold">Vendas/Mês</p><p id="count-atua" class="text-4xl font-light">0</p></div>
+                        <div class="border-l pl-8"><p class="text-[10px] text-gray-400 uppercase font-bold">Ticket Médio</p><p id="ticket-medio" class="text-4xl font-light">R$ 0</p></div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="content-pdv" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 card p-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Cliente</label><select id="venda-cliente"></select></div>
-                        <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Data</label><input type="date" id="venda-data"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2 card-3d p-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                        <div><label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Cliente</label><select id="venda-cliente"></select></div>
+                        <div><label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Data da Operação</label><input type="date" id="venda-data"></div>
                     </div>
-                    <div class="mb-8"><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Item</label><div class="flex gap-4"><select id="venda-produto-select" class="flex-1"></select><button onclick="addItem()" class="btn-gold">ADICIONAR</button></div></div>
-                    <table class="w-full text-left text-sm">
-                        <thead><tr class="text-gray-400 border-b text-[10px] uppercase font-bold"><th class="py-4">Produto</th><th>Qtd</th><th>Preço</th><th>Subtotal</th><th></th></tr></thead>
-                        <tbody id="carrinho-lista"></tbody>
-                    </table>
+                    <div class="mb-10"><label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Seleção de Itens</label><div class="flex gap-4"><select id="venda-produto-select" class="flex-1"></select><button onclick="addItem()" class="btn-gold px-8">ADICIONAR</button></div></div>
+                    <div class="overflow-x-auto"><table class="w-full text-left text-sm">
+                        <thead><tr class="text-[10px] uppercase text-gray-400 border-b"><th class="pb-4">Item</th><th>Qtd</th><th>Unitário</th><th>Subtotal</th><th></th></tr></thead>
+                        <tbody id="carrinho-lista" class="divide-y divide-gray-50"></tbody>
+                    </table></div>
                 </div>
-                <div class="card p-8 bg-black text-white flex flex-col justify-between">
-                    <div class="space-y-4">
-                        <h3 class="text-[10px] font-bold text-[#bf9a5a] uppercase tracking-widest mb-4">Resumo</h3>
-                        <input type="number" id="venda-desconto" oninput="calcTotal()" placeholder="Desconto (R$)" class="text-white border-gray-800">
-                        <input type="number" id="venda-frete" oninput="calcTotal()" placeholder="Frete (R$)" class="text-white border-gray-800">
-                        <select id="venda-pgto" class="text-white border-gray-800"><option value="Pix">Pix</option><option value="Cartão">Cartão</option><option value="Dinheiro">Dinheiro</option></select>
-                        <select id="venda-status" class="text-white border-gray-800"><option value="Pago">Pago</option><option value="Pendente">Pendente</option></select>
+                <div class="card-3d p-10 bg-black text-white flex flex-col justify-between overflow-hidden relative">
+                    <div class="relative z-10">
+                        <h3 class="text-[10px] font-bold text-[#bf9a5a] uppercase mb-10 tracking-widest">Resumo Financeiro</h3>
+                        <div class="space-y-6">
+                            <input type="number" id="venda-desconto" oninput="calcTotal()" placeholder="Desconto (R$)" class="bg-gray-900 border-none text-white p-4">
+                            <input type="number" id="venda-frete" oninput="calcTotal()" placeholder="Frete (R$)" class="bg-gray-900 border-none text-white p-4">
+                            <select id="venda-pgto" class="bg-gray-900 border-none text-white p-4"><option value="Pix">Pix</option><option value="Cartão">Cartão</option><option value="Dinheiro">Dinheiro</option></select>
+                        </div>
                     </div>
-                    <div class="pt-8 border-t border-gray-800">
-                        <div class="flex justify-between text-2xl font-light mb-6"><span>TOTAL</span><span class="font-bold text-[#bf9a5a]">R$ <span id="venda-total-display">0,00</span></span></div>
-                        <button onclick="salvarVenda()" class="w-full bg-[#bf9a5a] text-black py-4 rounded font-black uppercase text-xs tracking-widest hover:bg-white transition">FINALIZAR E RECIBO</button>
+                    <div class="pt-10 border-t border-gray-800 relative z-10">
+                        <div class="flex justify-between text-3xl font-light mb-8"><span>TOTAL</span><span class="font-bold text-[#bf9a5a]">R$ <span id="venda-total-display">0,00</span></span></div>
+                        <button onclick="salvarVenda()" class="w-full bg-[#bf9a5a] text-black py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white transition-all shadow-xl shadow-gold/20">Finalizar Venda</button>
                     </div>
+                    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-[#bf9a5a] opacity-10 rounded-full blur-3xl"></div>
                 </div>
             </div>
         </section>
 
-        <section id="content-gastos" class="tab-content hidden"><div class="card p-10 max-w-xl mx-auto"><h3 class="font-bold mb-8 uppercase text-xs tracking-widest text-[#bf9a5a]">Lançamento de Despesa</h3><div class="space-y-6"><input type="text" id="gasto-nome" placeholder="Descrição"><input type="text" id="gasto-forn" placeholder="Fornecedor"><input type="number" id="gasto-valor" placeholder="Valor"><button onclick="salvarGasto()" class="w-full btn-gold py-4">REGISTRAR GASTO</button></div></div></section>
-        <section id="content-clientes" class="tab-content hidden"><div class="card p-8"><div class="flex justify-between mb-8"><h3>CLIENTES</h3><div class="flex gap-2"><input type="file" id="csv-clientes" accept=".csv"><button onclick="importarCSV('clientes')" class="btn-gold">IMPORTAR</button></div></div><div id="lista-cli-view" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div></div></section>
-        <section id="content-produtos" class="tab-content hidden"><div class="card p-8"><div class="flex justify-between mb-8"><h3>PRODUTOS</h3><div class="flex gap-2"><input type="file" id="csv-produtos" accept=".csv"><button onclick="importarCSV('produtos')" class="btn-gold">IMPORTAR</button></div></div><div id="lista-prod-view" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div></div></section>
-        
-        <section id="content-config" class="tab-content hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="card p-8"><h3 class="font-bold mb-6 uppercase text-xs tracking-widest">Institucional</h3><div class="space-y-4"><input type="text" id="conf-nome" value="MugShopp Personalizados"><input type="text" id="conf-cnpj" value="64.137.780/0001-07"><input type="text" id="conf-end" value="Rua: Emília, 384 - Gurilândia - Taubaté"><input type="text" id="conf-fone" value="(12) 99243.9101"><button onclick="alert('Salvo!')" class="w-full btn-gold mt-4">SALVAR</button></div></div>
-                <div class="card p-8"><h3 class="font-bold mb-6 uppercase text-xs tracking-widest">Ferramentas</h3><button onclick="gerarRelatorioPDF()" class="w-full border border-black py-4 rounded text-[10px] font-bold uppercase mb-4">Relatório PDF</button><button onclick="exportarBackup()" class="w-full border border-gray-200 py-4 rounded text-[10px] font-bold uppercase">Exportar Backup</button></div>
+        <section id="content-gastos" class="tab-content hidden">
+            <div class="card-3d p-12 max-w-xl mx-auto">
+                <h3 class="font-extrabold mb-10 uppercase text-xs tracking-widest text-[#bf9a5a] text-center">Registro de Despesa</h3>
+                <div class="space-y-6">
+                    <input type="text" id="gasto-nome" placeholder="Descrição do Gasto">
+                    <input type="text" id="gasto-forn" placeholder="Fornecedor">
+                    <input type="number" id="gasto-valor" placeholder="Valor Total (R$)">
+                    <button onclick="salvarGasto()" class="w-full btn-gold py-5 shadow-lg">REGISTRAR NO FLUXO</button>
+                </div>
             </div>
         </section>
-                        </main>
-        <script>
+
+        <section id="content-clientes" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
+                <div class="card-3d p-8 lg:col-span-1 h-fit">
+                    <h3 class="font-bold text-xs mb-8 uppercase text-[#bf9a5a]">Gestão de Clientes</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="new-cli-nome" placeholder="Nome Completo">
+                        <input type="text" id="new-cli-fone" placeholder="Telefone (WhatsApp)">
+                        <input type="text" id="new-cli-doc" placeholder="CPF ou CNPJ">
+                        <input type="text" id="new-cli-cidade" placeholder="Cidade">
+                        <button onclick="adicionarManual('clientes')" class="w-full btn-gold py-4">CADASTRAR CLIENTE</button>
+                    </div>
+                    <div class="mt-10 pt-8 border-t space-y-4">
+                        <p class="text-[10px] font-bold text-gray-300 uppercase">Importação / Reset</p>
+                        <input type="file" id="csv-clientes" accept=".csv" class="text-[10px]">
+                        <button onclick="importarCSV('clientes')" class="w-full btn-outline py-2 border-gray-200">IMPORTAR CSV</button>
+                        <button onclick="limparBanco('clientes')" class="w-full text-red-300 text-[10px] uppercase font-bold hover:text-red-600 transition">Excluir Base Total</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6" id="lista-cli-view"></div>
+            </div>
+        </section>
+
+        <section id="content-produtos" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
+                <div class="card-3d p-8 lg:col-span-1 h-fit">
+                    <h3 class="font-bold text-xs mb-8 uppercase text-[#bf9a5a]">Catálogo de Itens</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="new-prod-nome" placeholder="Nome do Produto">
+                        <input type="number" id="new-prod-preco" placeholder="Preço Sugerido (R$)">
+                        <button onclick="adicionarManual('produtos')" class="w-full btn-gold py-4">SALVAR PRODUTO</button>
+                    </div>
+                    <div class="mt-10 pt-8 border-t space-y-4">
+                        <input type="file" id="csv-produtos" accept=".csv" class="text-[10px]">
+                        <button onclick="importarCSV('produtos')" class="w-full btn-outline py-2 border-gray-200">IMPORTAR CSV</button>
+                        <button onclick="exportarExcelProdutos()" class="w-full btn-outline py-2 border-black text-black">EXPORTAR EXCEL</button>
+                        <button onclick="limparBanco('produtos')" class="w-full text-red-300 text-[10px] uppercase font-bold hover:text-red-600 transition">Resetar Catálogo</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6" id="lista-prod-view"></div>
+            </div>
+        </section>
+
+        <section id="content-config" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div class="card-3d p-10">
+                    <h3 class="font-bold mb-10 uppercase text-xs tracking-widest text-[#bf9a5a]">Identidade Corporativa</h3>
+                    <div class="grid grid-cols-1 gap-6">
+                        <input type="text" id="conf-nome" value="MugShopp - Estúdio de Design & Personalizados">
+                        <input type="text" id="conf-cnpj" value="64.137.780/0001-07">
+                        <input type="text" id="conf-end" value="Rua: Emília, 384 - Gurilândia - Taubaté">
+                        <input type="text" id="conf-logo" value="https://i.postimg.cc/T190pkF7/Copia-de-Novo-Logotipo-2026-20260127-183120-0000.png">
+                        <button onclick="alert('Configurações salvas!')" class="w-full btn-gold py-4">ATUALIZAR DADOS</button>
+                    </div>
+                </div>
+                <div class="card-3d p-10 bg-white">
+                    <h3 class="font-bold mb-8 uppercase text-xs tracking-widest text-[#bf9a5a]">Business Intelligence & Backup</h3>
+                    <div class="space-y-4">
+                        <button onclick="gerarRelatorioVendas()" class="w-full py-4 border border-black rounded-xl text-[10px] font-extrabold uppercase hover:bg-black hover:text-white transition">Relatório Mensal de Vendas (PDF)</button>
+                        <button onclick="gerarRelatorioComparativo()" class="w-full py-4 border border-black rounded-xl text-[10px] font-extrabold uppercase hover:bg-black hover:text-white transition">Comparativo Vendas x Gastos (PDF)</button>
+                        
+                        <div class="pt-8 border-t grid grid-cols-2 gap-4">
+                            <button onclick="exportarBackup()" class="w-full py-3 bg-gray-100 rounded-xl text-[9px] font-bold uppercase">Exportar Backup (.JSON)</button>
+                            <label class="w-full py-3 bg-gray-100 rounded-xl text-[9px] font-bold uppercase text-center cursor-pointer">
+                                Importar Backup
+                                <input type="file" id="import-json" class="hidden" onchange="importarBackup(event)">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+                            </main>
+                                <script>
         const db = new Dexie("MugShoppDB");
-        db.version(3).stores({ vendas: '++id, data, cliente, total', gastos: '++id, data, valor', clientes: '++id, nome, telefone', produtos: '++id, nome, preco' });
+        db.version(5).stores({
+            vendas: '++id, data, cliente, total',
+            gastos: '++id, data, valor',
+            clientes: '++id, nome, telefone, documento, cidade',
+            produtos: '++id, nome, preco'
+        });
 
         let carrinho = []; let chartObj = null;
 
@@ -108,115 +210,271 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById('content-' + id).classList.remove('hidden');
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
-            document.getElementById('tab-' + id).classList.add('active-tab');
-            if(id === 'home') atualizarDash(); if(id === 'pdv') initPDV(); if(id === 'clientes') listarClientes(); if(id === 'produtos') listarProdutos();
+            const btn = document.getElementById('tab-' + id);
+            if(btn) btn.classList.add('active-tab');
+            
+            if(id === 'home') atualizarDash(); 
+            if(id === 'pdv') initPDV(); 
+            if(id === 'clientes') listarClientes(); 
+            if(id === 'produtos') listarProdutos();
         }
 
         async function atualizarDash() {
-            const agora = new Date(); const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
-            const vendas = await db.vendas.toArray(); const gastos = await db.gastos.toArray();
-            const vMes = vendas.filter(v => new Date(v.data) >= inicioMes);
-            const gMes = gastos.filter(g => new Date(g.data) >= inicioMes);
+            const agora = new Date();
+            const mesAtual = agora.getMonth();
+            const anoAtual = agora.getFullYear();
+
+            const todasVendas = await db.vendas.toArray();
+            const todosGastos = await db.gastos.toArray();
+
+            const vMes = todasVendas.filter(v => {
+                const d = new Date(v.data);
+                return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+            });
+            const gMes = todosGastos.filter(g => {
+                const d = new Date(g.data);
+                return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+            });
+
             const totalV = vMes.reduce((a, b) => a + b.total, 0);
             const totalG = gMes.reduce((a, b) => a + b.valor, 0);
-            const saldoAnteriorVal = parseFloat(localStorage.getItem('mug_saldo_ant')) || 0;
+
             document.getElementById('card-vendas-mes').innerText = `R$ ${totalV.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
             document.getElementById('card-gastos-mes').innerText = `R$ ${totalG.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            document.getElementById('card-saldo-total').innerText = `R$ ${(totalV - totalG + saldoAnteriorVal).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('card-saldo-total').innerText = `R$ ${(totalV - totalG).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('count-atua').innerText = vMes.length;
+            document.getElementById('ticket-medio').innerText = vMes.length > 0 ? `R$ ${(totalV / vMes.length).toFixed(0)}` : 'R$ 0';
+
             renderizarGrafico(totalV, totalG);
         }
 
         function renderizarGrafico(v, g) {
             const ctx = document.getElementById('chartVendasGastos').getContext('2d');
             if(chartObj) chartObj.destroy();
-            chartObj = new Chart(ctx, { type: 'doughnut', data: { labels: ['Vendas', 'Gastos'], datasets: [{ data: [v, g], backgroundColor: ['#bf9a5a', '#1a1a1a'], borderWidth: 0 }] }, options: { cutout: '80%' } });
+            chartObj = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Vendas', 'Gastos'],
+                    datasets: [{
+                        label: 'R$',
+                        data: [v, g],
+                        backgroundColor: ['#bf9a5a', '#1a1a1a'],
+                        borderRadius: 12
+                    }]
+                },
+                options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
+            });
         }
 
+        // --- BACKUP (EXPORT/IMPORT) ---
+        async function exportarBackup() {
+            const data = {
+                vendas: await db.vendas.toArray(),
+                gastos: await db.gastos.toArray(),
+                clientes: await db.clientes.toArray(),
+                produtos: await db.produtos.toArray()
+            };
+            const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Backup_MugShopp_${new Date().toLocaleDateString().replace(/\//g,'-')}.json`;
+            a.click();
+        }
+
+        async function importarBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(confirm("Isso apagará os dados atuais e restaurará o backup. Continuar?")) {
+                        await db.vendas.clear(); await db.gastos.clear();
+                        await db.clientes.clear(); await db.produtos.clear();
+                        if(data.vendas) await db.vendas.bulkAdd(data.vendas);
+                        if(data.gastos) await db.gastos.bulkAdd(data.gastos);
+                        if(data.clientes) await db.clientes.bulkAdd(data.clientes);
+                        if(data.produtos) await db.produtos.bulkAdd(data.produtos);
+                        alert("Backup restaurado com sucesso!");
+                        location.reload();
+                    }
+                } catch (err) { alert("Erro ao ler arquivo de backup."); }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- RELATÓRIOS PDF ---
+        async function gerarRelatorioVendas() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const vendas = await db.vendas.toArray();
+            doc.setFontSize(18); doc.text("Relatório Mensal de Vendas - MugShopp", 14, 20);
+            doc.autoTable({
+                startY: 30,
+                head: [['Data', 'Cliente', 'Pgto', 'Total']],
+                body: vendas.map(v => [v.data, v.cliente, v.pagamento, `R$ ${v.total.toFixed(2)}`]),
+                headStyles: { fillColor: [0, 0, 0] }
+            });
+            doc.save("Relatorio_Vendas_MugShopp.pdf");
+        }
+
+        async function gerarRelatorioComparativo() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const v = await db.vendas.toArray();
+            const g = await db.gastos.toArray();
+            const totalV = v.reduce((a,b) => a + b.total, 0);
+            const totalG = g.reduce((a,b) => a + b.valor, 0);
+
+            doc.setFontSize(18); doc.text("Comparativo Financeiro - MugShopp", 14, 20);
+            doc.autoTable({
+                startY: 30,
+                head: [['Categoria', 'Valor Total']],
+                body: [
+                    ['Vendas (Receita)', `R$ ${totalV.toFixed(2)}`],
+                    ['Gastos (Despesas)', `R$ ${totalG.toFixed(2)}`],
+                    ['Resultado Líquido', `R$ ${(totalV - totalG).toFixed(2)}`]
+                ],
+                headStyles: { fillColor: [191, 154, 90] }
+            });
+            doc.save("Comparativo_Financeiro.pdf");
+        }
+
+        // --- PDV LÓGICA ---
         async function initPDV() {
             document.getElementById('venda-data').valueAsDate = new Date();
-            const clis = await db.clientes.toArray(); const prods = await db.produtos.toArray();
-            document.getElementById('venda-cliente').innerHTML = '<option value="Consumidor Final">Consumidor Final</option>' + clis.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
+            const clis = await db.clientes.toArray();
+            const prods = await db.produtos.toArray();
+            document.getElementById('venda-cliente').innerHTML = '<option value="">Cliente...</option>' + clis.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
             document.getElementById('venda-produto-select').innerHTML = prods.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`).join('');
         }
 
         async function addItem() {
-            const id = document.getElementById('venda-produto-select').value; if(!id) return;
-            const p = await db.produtos.get(parseInt(id)); carrinho.push({ ...p, qtd: 1, subtotal: p.preco }); renderCarrinho();
+            const id = document.getElementById('venda-produto-select').value;
+            if(!id) return;
+            const p = await db.produtos.get(parseInt(id));
+            carrinho.push({ ...p, qtd: 1, subtotal: p.preco });
+            renderCarrinho();
         }
 
         function renderCarrinho() {
-            document.getElementById('carrinho-lista').innerHTML = carrinho.map((item, i) => `<tr class="border-b"><td class="py-4 font-bold">${item.nome}</td><td><input type="number" value="${item.qtd}" onchange="editQtd(${i}, this.value)" class="w-12 text-center"></td><td>R$ ${item.preco.toFixed(2)}</td><td class="font-black">R$ ${item.subtotal.toFixed(2)}</td><td><button onclick="remove(${i})">✕</button></td></tr>`).join('');
+            document.getElementById('carrinho-lista').innerHTML = carrinho.map((item, i) => `
+                <tr class="border-b">
+                    <td class="py-4 font-bold">${item.nome}</td>
+                    <td><input type="number" value="${item.qtd}" onchange="editQtd(${i}, this.value)" class="w-12 p-1 text-center"></td>
+                    <td>R$ ${item.preco.toFixed(2)}</td>
+                    <td class="font-black">R$ ${item.subtotal.toFixed(2)}</td>
+                    <td><button onclick="remove(${i})" class="text-red-400">✕</button></td>
+                </tr>`).join('');
             calcTotal();
         }
 
         function editQtd(i, val) { carrinho[i].qtd = parseFloat(val) || 1; carrinho[i].subtotal = carrinho[i].qtd * carrinho[i].preco; renderCarrinho(); }
         function remove(i) { carrinho.splice(i,1); renderCarrinho(); }
+
         function calcTotal() {
             const sub = carrinho.reduce((a, b) => a + b.subtotal, 0);
             const desc = parseFloat(document.getElementById('venda-desconto').value) || 0;
             const frete = parseFloat(document.getElementById('venda-frete').value) || 0;
             const total = sub - desc + frete;
-            document.getElementById('venda-total-display').innerText = total.toFixed(2).replace('.', ','); return total;
+            document.getElementById('venda-total-display').innerText = total.toFixed(2).replace('.', ',');
+            return total;
         }
 
         async function salvarVenda() {
-            const total = calcTotal(); if(carrinho.length === 0) return alert("Vazio!");
-            const venda = { cliente: document.getElementById('venda-cliente').value, data: document.getElementById('venda-data').value, produtos: [...carrinho], total: total, pagamento: document.getElementById('venda-pgto').value, status: document.getElementById('venda-status').value };
-            await db.vendas.add(venda); gerarRecibo(venda); carrinho = []; renderCarrinho(); alert("Sucesso!");
+            const cid = document.getElementById('venda-cliente').value;
+            if(!cid || carrinho.length === 0) return alert("Dados incompletos!");
+            const cliente = await db.clientes.get(parseInt(cid));
+            const total = calcTotal();
+            const venda = { 
+                cliente: cliente.nome, clienteDados: cliente, data: document.getElementById('venda-data').value,
+                produtos: [...carrinho], total: total, pagamento: document.getElementById('venda-pgto').value,
+                subtotal: carrinho.reduce((a,b)=>a+b.subtotal, 0), frete: parseFloat(document.getElementById('venda-frete').value)||0,
+                desconto: parseFloat(document.getElementById('venda-desconto').value)||0
+            };
+            await db.vendas.add(venda);
+            gerarRecibo(venda);
+            carrinho = []; renderCarrinho();
+            atualizarDash();
+        }
+
+        // --- RECIBO PROFISSIONAL ---
+        function gerarRecibo(v) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: [80, 200] });
+            const logo = document.getElementById('conf-logo').value;
+            try { doc.addImage(logo, 'PNG', 25, 5, 30, 30); } catch(e){}
+            doc.setFontSize(8); doc.text("MUGSHOPP DESIGN", 40, 40, {align:'center'});
+            doc.text(`${document.getElementById('conf-cnpj').value}`, 40, 44, {align:'center'});
+            doc.line(5, 50, 75, 50);
+            doc.text(`CLIENTE: ${v.cliente}`, 5, 55);
+            let y = 65;
+            v.produtos.forEach(p => { doc.text(`${p.qtd}x ${p.nome.substring(0,20)}`, 5, y); doc.text(`R$ ${p.subtotal.toFixed(2)}`, 75, y, {align:'right'}); y+=5; });
+            doc.line(5, y, 75, y);
+            doc.setFont("helvetica", "bold"); doc.text(`TOTAL: R$ ${v.total.toFixed(2)}`, 75, y+8, {align:'right'});
+            doc.save(`Recibo_${v.cliente}.pdf`);
+        }
+
+        // --- GESTÃO DE DADOS ---
+        async function adicionarManual(tipo) {
+            if(tipo === 'clientes') {
+                await db.clientes.add({
+                    nome: document.getElementById('new-cli-nome').value,
+                    telefone: document.getElementById('new-cli-fone').value,
+                    documento: document.getElementById('new-cli-doc').value,
+                    cidade: document.getElementById('new-cli-cidade').value
+                });
+                listarClientes();
+            } else {
+                await db.produtos.add({
+                    nome: document.getElementById('new-prod-nome').value,
+                    preco: parseFloat(document.getElementById('new-prod-preco').value)
+                });
+                listarProdutos();
+            }
+            alert("Sucesso!");
+        }
+
+        async function listarClientes() {
+            const list = await db.clientes.toArray();
+            document.getElementById('lista-cli-view').innerHTML = list.map(c => `
+                <div class="card-3d p-6">
+                    <p class="font-bold text-sm">${c.nome}</p>
+                    <p class="text-[10px] text-gray-400 mt-1 uppercase">${c.documento || 'S/ Doc'} | ${c.cidade || 'Taubaté'}</p>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="editarCli(${c.id})" class="text-[10px] font-bold uppercase text-[#bf9a5a]">Editar</button>
+                        <button onclick="excluirItem('clientes', ${c.id})" class="text-[10px] font-bold uppercase text-red-300">Excluir</button>
+                    </div>
+                </div>`).join('');
         }
 
         async function listarProdutos() {
             const list = await db.produtos.toArray();
-            document.getElementById('lista-prod-view').innerHTML = list.map(p => `<div class="card p-6"><div><p class="text-[10px] font-bold text-[#bf9a5a] uppercase">${p.nome}</p><p class="text-xl font-light">R$ ${p.preco.toFixed(2)}</p></div><div class="flex gap-2 mt-4"><button onclick="editarProduto(${p.id})" class="btn-outline flex-1">EDITAR</button><button onclick="excluirItem('produtos', ${p.id})" class="btn-outline text-red-500">✕</button></div></div>`).join('');
-        }
-
-        async function editarProduto(id) {
-            const p = await db.produtos.get(id); const n = prompt("Nome:", p.nome); const pr = prompt("Preço:", p.preco);
-            if(n && pr) { await db.produtos.update(id, { nome: n, preco: parseFloat(pr.replace(',', '.')) }); listarProdutos(); }
-        }
-
-        async function excluirItem(tab, id) { if(confirm("Excluir?")) { await db[tab].delete(id); tab === 'produtos' ? listarProdutos() : listarClientes(); } }
-
-        async function listarClientes() {
-            const list = await db.clientes.toArray();
-            document.getElementById('lista-cli-view').innerHTML = list.map(c => `<div class="card p-6"><div><p class="font-bold">${c.nome}</p><p class="text-xs text-gray-500">${c.telefone || ''}</p></div><div class="flex gap-2 mt-4"><button onclick="editarCliente(${c.id})" class="btn-outline flex-1">EDITAR</button><button onclick="excluirItem('clientes', ${c.id})" class="btn-outline text-red-500">✕</button></div></div>`).join('');
-        }
-
-        async function editarCliente(id) {
-            const c = await db.clientes.get(id); const n = prompt("Nome:", c.nome); if(n) { await db.clientes.update(id, { nome: n }); listarClientes(); }
-        }
-
-        function importarCSV(tipo) {
-            const file = document.getElementById(`csv-${tipo}`).files[0]; if(!file) return;
-            const reader = new FileReader(); reader.onload = async (e) => {
-                const linhas = e.target.result.split('\n').slice(1);
-                for(let l of linhas) {
-                    const col = l.includes(';') ? l.split(';') : l.split(','); if(col.length < 2) continue;
-                    if(tipo === 'clientes') await db.clientes.add({ nome: col[0].trim(), telefone: col[1]?.trim() || '' });
-                    else { let p = col[1].replace('R$', '').replace(',', '.').trim(); await db.produtos.add({ nome: col[0].trim(), preco: parseFloat(p) || 0 }); }
-                }
-                alert("Importado!"); location.reload();
-            };
-            reader.readAsText(file, 'ISO-8859-1');
+            document.getElementById('lista-prod-view').innerHTML = list.map(p => `
+                <div class="card-3d p-6 text-center">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">${p.nome}</p>
+                    <p class="text-xl font-light my-2">R$ ${p.preco.toFixed(2)}</p>
+                    <div class="flex justify-center gap-4 mt-2">
+                        <button onclick="editarProd(${p.id})" class="text-[10px] font-bold text-[#bf9a5a]">EDITAR</button>
+                        <button onclick="excluirItem('produtos', ${p.id})" class="text-[10px] font-bold text-red-300">EXCLUIR</button>
+                    </div>
+                </div>`).join('');
         }
 
         async function salvarGasto() {
-            const v = parseFloat(document.getElementById('gasto-valor').value); if(!v) return;
-            await db.gastos.add({ nome: document.getElementById('gasto-nome').value, fornecedor: document.getElementById('gasto-forn').value, valor: v, data: new Date().toISOString().split('T')[0] });
-            alert("Salvo!"); showTab('home');
+            await db.gastos.add({
+                nome: document.getElementById('gasto-nome').value,
+                fornecedor: document.getElementById('gasto-forn').value,
+                valor: parseFloat(document.getElementById('gasto-valor').value),
+                data: new Date().toISOString().split('T')[0]
+            });
+            alert("Gasto registrado!"); atualizarDash();
         }
 
-        function gerarRecibo(v) {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF({ unit: 'mm', format: [80, 150] });
-            doc.setFontSize(10); doc.text("MUGSHOPP", 40, 10, {align: 'center'});
-            doc.setFontSize(7); doc.text(`CLIENTE: ${v.cliente}`, 5, 20);
-            let y = 30; v.produtos.forEach(p => { doc.text(`${p.qtd}x ${p.nome}`, 5, y); doc.text(`R$ ${p.subtotal.toFixed(2)}`, 75, y, {align: 'right'}); y += 5; });
-            doc.text(`TOTAL: R$ ${v.total.toFixed(2)}`, 75, y+5, {align: 'right'}); doc.save(`recibo.pdf`);
-        }
+        async function excluirItem(tab, id) { if(confirm("Excluir?")) { await db[tab].delete(id); tab==='produtos'?listarProdutos():listarClientes(); } }
+        async function limparBanco(tab) { if(confirm(`LIMPAR TUDO EM ${tab.toUpperCase()}?`)) { await db[tab].clear(); location.reload(); } }
 
-        window.onload = () => atualizarDash();
+        window.onload = () => showTab('home');
     </script>
 </body>
 </html>
-
-    
