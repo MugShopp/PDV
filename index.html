@@ -35,13 +35,13 @@
         <main class="p-4 max-w-4xl mx-auto">
         <section id="content-home" class="tab-content">
             <div class="card-3d p-6 mb-6">
-                <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-4">Evolução Financeira (Ganhos vs Gastos)</h3>
+                <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-4">Evolução Financeira</h3>
                 <canvas id="chartLinha" height="200"></canvas>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="card-3d p-5 text-center bg-gray-50">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Vendas Mês Anterior (Manual)</p>
-                    <input type="number" id="vendas-manual-anterior" onchange="salvarMeta()" class="text-xl font-bold text-center bg-transparent border-none p-0 w-full" value="0">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Vendas Mês Anterior</p>
+                    <input type="number" id="vendas-manual-anterior" onchange="salvarMeta()" class="text-xl font-bold text-center bg-transparent border-none w-full" value="0">
                 </div>
                 <div class="card-3d p-5 text-center border-b-4 border-[#10b981]">
                     <p class="text-[9px] font-bold text-[#10b981] uppercase">Vendas Mês Atual</p>
@@ -50,58 +50,61 @@
             </div>
         </section>
 
-        <section id="content-vender" class="tab-content hidden">
+        <section id="content-vender" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-4">
                 <select id="venda-cliente"><option value="">Selecionar Cliente</option></select>
-                <div class="flex gap-2">
-                    <select id="venda-produto-select" class="flex-1"><option value="">Selecionar Produto</option></select>
-                    <button onclick="addItem()" class="bg-black text-white px-5 rounded-xl font-bold text-xl">+</button>
+                <div class="grid grid-cols-12 gap-2">
+                    <select id="venda-produto-select" class="col-span-7"></select>
+                    <input type="number" id="venda-qtd" value="1" min="1" class="col-span-3 text-center">
+                    <button onclick="addItem()" class="col-span-2 bg-black text-white rounded-xl font-bold">+</button>
                 </div>
                 <div id="carrinho-lista" class="divide-y divide-gray-100 py-2"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="venda-pagamento"><option>Pix</option><option>Cartão</option><option>Dinheiro</option></select>
+                    <select id="venda-status"><option>Finalizado</option><option>Pendente</option></select>
+                </div>
                 <div class="pt-4 border-t space-y-3">
                     <div class="flex justify-between font-bold text-xl"><span>Total:</span><span class="text-[#bf9a5a]">R$ <span id="venda-total-display">0,00</span></span></div>
-                    <button onclick="salvarVenda()" class="btn-gold">Finalizar e Gerar Recibo</button>
+                    <button onclick="salvarVenda()" class="btn-gold">Finalizar & Gerar Recibo</button>
                 </div>
             </div>
+            <h3 class="font-bold text-xs uppercase px-2">Histórico de Vendas</h3>
+            <div id="lista-vendas-view" class="space-y-2"></div>
         </section>
 
         <section id="content-clientes" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-3">
-                <input type="text" id="new-cli-nome" placeholder="Nome do Cliente">
-                <input type="text" id="new-cli-fone" placeholder="Telefone">
-                <button onclick="salvarEntidade('clientes')" class="btn-gold">Cadastrar Cliente</button>
-                <label class="btn-outline">Importar CSV de Clientes<input type="file" class="hidden" accept=".csv" onchange="importarCSV(this, 'clientes')"></label>
+                <input type="text" id="cli-nome" placeholder="Nome Completo">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="cli-fone" placeholder="WhatsApp">
+                    <input type="email" id="cli-email" placeholder="E-mail">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="cli-cidade" placeholder="Cidade">
+                    <input type="text" id="cli-cpf" placeholder="CPF">
+                </div>
+                <button onclick="salvarCliente()" class="btn-gold">Cadastrar Cliente</button>
             </div>
             <div id="lista-cli-view" class="space-y-2"></div>
         </section>
 
         <section id="content-produtos" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-3">
-                <input type="text" id="new-prod-nome" placeholder="Nome do Produto">
-                <input type="number" id="new-prod-preco" placeholder="Preço (R$)">
-                <button onclick="salvarEntidade('produtos')" class="btn-gold">Cadastrar no Estoque</button>
-                <label class="btn-outline">Importar CSV de Produtos<input type="file" class="hidden" accept=".csv" onchange="importarCSV(this, 'produtos')"></label>
+                <input type="text" id="prod-nome" placeholder="Produto">
+                <input type="number" id="prod-preco" placeholder="Preço">
+                <button onclick="salvarProd()" class="btn-gold">Salvar no Estoque</button>
             </div>
             <div id="lista-prod-view" class="space-y-2"></div>
         </section>
 
         <section id="content-gastos" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-3">
-                <input type="text" id="gasto-nome" placeholder="O que comprou?">
-                <input type="number" id="gasto-valor" placeholder="Valor (R$)">
+                <input type="text" id="gasto-nome" placeholder="Descrição">
+                <input type="number" id="gasto-valor" placeholder="R$">
                 <input type="date" id="gasto-data">
-                <button onclick="salvarGasto()" class="btn-gold">Salvar Gasto</button>
+                <button onclick="salvarGasto()" class="btn-gold">Lançar Gasto</button>
             </div>
-            <div id="lista-gastos" class="space-y-2"></div>
-        </section>
-
-        <section id="content-config" class="tab-content hidden space-y-4">
-            <div class="card-3d p-6 text-center space-y-4">
-                <h3 class="font-bold text-xs uppercase text-[#bf9a5a]">Relatórios & Segurança</h3>
-                <button onclick="gerarPDFRelatorio()" class="btn-outline">Download Relatório de Vendas (PDF)</button>
-                <button onclick="exportarBackup()" class="btn-outline bg-gray-50">Fazer Download do Backup (JSON)</button>
-                <label class="btn-outline cursor-pointer">Restaurar Backup<input type="file" class="hidden" onchange="importarBackup(event)"></label>
-            </div>
+            <div id="lista-gastos-view" class="space-y-2"></div>
         </section>
     </main>
 
@@ -111,16 +114,15 @@
         <button onclick="showTab('clientes')" id="nav-clientes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Clientes</button>
         <button onclick="showTab('produtos')" id="nav-produtos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>Estoque</button>
         <button onclick="showTab('gastos')" id="nav-gastos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line></svg>Gastos</button>
-        <button onclick="showTab('config')" id="nav-config" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Ajustes</button>
-    </nav>
+                                                                                                                                                                 </nav>
         <script>
         const db = new Dexie("MugShoppDB");
-        db.version(10).stores({
-            vendas: '++id, data, total',
+        db.version(11).stores({
+            vendas: '++id, data, clienteId',
             gastos: '++id, data, valor',
-            clientes: '++id, nome, fone',
+            clientes: '++id, nome, fone, email, cidade, cpf',
             produtos: '++id, nome, preco',
-            meta: 'id, valor'
+            meta: 'id'
         });
 
         let carrinho = []; let chartObj = null;
@@ -131,135 +133,129 @@
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + id).classList.add('active');
             if(id === 'home') atualizarDash();
-            if(id === 'vender') initVender();
-            if(id === 'clientes') listarEntidades('clientes');
-            if(id === 'produtos') listarEntidades('produtos');
-            if(id === 'gastos') { document.getElementById('gasto-data').valueAsDate = new Date(); listarGastos(); }
-        }
-
-        async function atualizarDash() {
-            const m = await db.meta.get(1);
-            document.getElementById('vendas-manual-anterior').value = m ? m.valor : 0;
-            const v = await db.vendas.toArray(); const g = await db.gastos.toArray();
-            const mesAt = new Date().getMonth();
-            const vendasMes = v.filter(x => new Date(x.data).getMonth() === mesAt);
-            document.getElementById('vendas-mes-atual').innerText = vendasMes.length;
-
-            const ctx = document.getElementById('chartLinha').getContext('2d');
-            if(chartObj) chartObj.destroy();
-            
-            const labels = ["Vendas (R$)", "Gastos (R$)"];
-            const totalV = v.reduce((s, x) => s + x.total, 0);
-            const totalG = g.reduce((s, x) => s + x.valor, 0);
-
-            chartObj = new Chart(ctx, {
-                type: 'bar',
-                data: { labels, datasets: [{ data: [totalV, totalG], backgroundColor: ['#10b981', '#ef4444'], borderRadius: 10 }] },
-                options: { plugins: { legend: { display: false } } }
-            });
-        }
-
-        async function salvarMeta() {
-            const valor = parseInt(document.getElementById('vendas-manual-anterior').value);
-            await db.meta.put({id: 1, valor});
+            if(id === 'vender') { initVender(); listarVendas(); }
+            if(id === 'clientes') listarClientes();
+            if(id === 'produtos') listarProdutos();
+            if(id === 'gastos') listarGastos();
         }
 
         async function initVender() {
             const clis = await db.clientes.toArray(); const prods = await db.produtos.toArray();
-            document.getElementById('venda-cliente').innerHTML = '<option value="">Selecionar Cliente</option>' + clis.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
+            document.getElementById('venda-cliente').innerHTML = '<option value="">Consumidor Final</option>' + clis.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
             document.getElementById('venda-produto-select').innerHTML = '<option value="">Selecionar Produto</option>' + prods.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco}</option>`).join('');
         }
 
         async function addItem() {
             const id = document.getElementById('venda-produto-select').value;
+            const qtd = parseInt(document.getElementById('venda-qtd').value) || 1;
             if(!id) return;
             const p = await db.produtos.get(parseInt(id));
-            carrinho.push({...p});
+            carrinho.push({ ...p, qtd, subtotal: p.preco * qtd });
             renderCarrinho();
         }
 
         function renderCarrinho() {
-            document.getElementById('carrinho-lista').innerHTML = carrinho.map((item, i) => `
+            document.getElementById('carrinho-lista').innerHTML = carrinho.map((it, i) => `
                 <div class="flex justify-between py-2 text-xs font-bold">
-                    <span>${item.nome}</span>
-                    <div class="flex gap-4"><span>R$ ${item.preco.toFixed(2)}</span><button onclick="carrinho.splice(${i},1);renderCarrinho()" class="text-red-400">✕</button></div>
+                    <span>${it.qtd}x ${it.nome}</span>
+                    <div class="flex gap-4"><span>R$ ${it.subtotal.toFixed(2)}</span><button onclick="carrinho.splice(${i},1);renderCarrinho()" class="text-red-400">✕</button></div>
                 </div>`).join('');
-            const total = carrinho.reduce((a, b) => a + b.preco, 0);
-            document.getElementById('venda-total-display').innerText = total.toFixed(2).replace('.',',');
+            const tot = carrinho.reduce((a, b) => a + b.subtotal, 0);
+            document.getElementById('venda-total-display').innerText = tot.toFixed(2).replace('.',',');
         }
 
         async function salvarVenda() {
-            if(carrinho.length === 0) return alert("Carrinho vazio");
-            const total = carrinho.reduce((a, b) => a + b.preco, 0);
-            const cliente = document.getElementById('venda-cliente').value || "Consumidor";
-            const venda = { data: new Date().toISOString().split('T')[0], total, cliente, itens: [...carrinho] };
+            if(carrinho.length === 0) return alert("Carrinho vazio!");
+            const cid = document.getElementById('venda-cliente').value;
+            const cliente = cid ? await db.clientes.get(parseInt(cid)) : {nome: "Consumidor Final"};
+            const venda = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                cliente: cliente,
+                itens: [...carrinho],
+                total: carrinho.reduce((a, b) => a + b.subtotal, 0),
+                pagamento: document.getElementById('venda-pagamento').value,
+                status: document.getElementById('venda-status').value
+            };
             await db.vendas.add(venda);
             gerarReciboPDF(venda);
-            alert("Venda salva! Gerando recibo...");
-            carrinho = []; renderCarrinho();
+            carrinho = []; renderCarrinho(); listarVendas();
         }
 
-        function gerarReciboPDF(v) {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF({ unit: 'mm', format: [80, 150] });
-            doc.setFontSize(10); doc.text("MUGSHOPP PDV", 40, 10, {align:'center'});
-            doc.text(`Data: ${v.data} | Cli: ${v.cliente}`, 5, 20);
-            let y = 30; v.itens.forEach(i => { doc.text(`${i.nome} - R$ ${i.preco.toFixed(2)}`, 5, y); y += 5; });
-            doc.text("---------------------------------", 5, y+2);
-            doc.text(`TOTAL: R$ ${v.total.toFixed(2)}`, 5, y+8);
-            doc.save(`Recibo_MugShopp_${Date.now()}.pdf`);
+        async function gerarReciboPDF(v) {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.setFillColor(0,0,0); doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255,255,255); doc.setFontSize(22); doc.text("MUGSHOPP", 105, 20, {align:'center'});
+            doc.setFontSize(10); doc.text("Estúdio de Design & Personalizados | Taubaté - SP", 105, 30, {align:'center'});
+            
+            doc.setTextColor(0,0,0); doc.setFontSize(12); doc.text("RECIBO DE VENDA", 14, 50);
+            doc.setFontSize(10); doc.text(`Cliente: ${v.cliente.nome}`, 14, 60);
+            doc.text(`WhatsApp: ${v.cliente.fone || '-'} | CPF: ${v.cliente.cpf || '-'}`, 14, 65);
+            doc.text(`Data: ${v.data} | Pagamento: ${v.pagamento} | Status: ${v.status}`, 14, 70);
+
+            doc.autoTable({
+                startY: 80, head: [['Qtd', 'Produto', 'Unit.', 'Subtotal']],
+                body: v.itens.map(i => [i.qtd, i.nome, `R$ ${i.preco.toFixed(2)}`, `R$ ${i.subtotal.toFixed(2)}`]),
+                theme: 'striped', headStyles: {fillColor: [191, 154, 90]}
+            });
+            doc.setFontSize(14); doc.text(`TOTAL: R$ ${v.total.toFixed(2)}`, 14, doc.lastAutoTable.finalY + 15);
+            doc.save(`Recibo_${v.cliente.nome}_${v.data}.pdf`);
         }
 
-        async function salvarEntidade(tipo) {
-            const nome = document.getElementById(tipo === 'clientes' ? 'new-cli-nome' : 'new-prod-nome').value;
-            const extra = document.getElementById(tipo === 'clientes' ? 'new-cli-fone' : 'new-prod-preco').value;
-            if(!nome || !extra) return alert("Preencha os campos!");
-            await db[tipo].add(tipo === 'clientes' ? {nome, fone: extra} : {nome, preco: parseFloat(extra)});
-            listarEntidades(tipo);
+        async function salvarCliente() {
+            const data = { nome: document.getElementById('cli-nome').value, fone: document.getElementById('cli-fone').value, email: document.getElementById('cli-email').value, cidade: document.getElementById('cli-cidade').value, cpf: document.getElementById('cli-cpf').value };
+            await db.clientes.add(data); listarClientes();
         }
 
-        async function listarEntidades(tipo) {
-            const data = await db[tipo].toArray();
-            const view = document.getElementById(tipo === 'clientes' ? 'lista-cli-view' : 'lista-prod-view');
-            view.innerHTML = data.map(item => `
-                <div class="card-3d p-4 flex justify-between items-center bg-white">
-                    <div class="flex-1">
-                        <input type="text" value="${item.nome}" onchange="editar('${tipo}', ${item.id}, 'nome', this.value)" class="p-1 font-bold text-xs uppercase border-none w-full">
-                        <input type="${tipo==='clientes'?'text':'number'}" value="${tipo==='clientes'?item.fone:item.preco}" onchange="editar('${tipo}', ${item.id}, '${tipo==='clientes'?'fone':'preco'}', this.value)" class="p-1 text-[10px] text-gray-400 border-none w-full">
+        async function listarClientes() {
+            const data = await db.clientes.toArray();
+            document.getElementById('lista-cli-view').innerHTML = data.map(c => `
+                <div class="card-3d p-4 space-y-2">
+                    <input onchange="db.clientes.update(${c.id}, {nome: this.value})" value="${c.nome}" class="font-bold text-sm border-none w-full">
+                    <div class="grid grid-cols-2 text-[10px] gap-2">
+                        <input onchange="db.clientes.update(${c.id}, {fone: this.value})" value="${c.fone}" placeholder="Fone" class="border-none">
+                        <input onchange="db.clientes.update(${c.id}, {cpf: this.value})" value="${c.cpf}" placeholder="CPF" class="border-none">
                     </div>
-                    <button onclick="db.${tipo}.delete(${item.id}).then(()=>listarEntidades('${tipo}'))" class="text-red-300 ml-2">✕</button>
+                    <button onclick="db.clientes.delete(${c.id}).then(listarClientes)" class="text-red-300 text-[10px]">Excluir Cliente</button>
                 </div>`).join('');
         }
 
-        async function editar(tipo, id, campo, valor) {
-            let obj = {}; obj[campo] = (campo === 'preco') ? parseFloat(valor) : valor;
-            await db[tipo].update(id, obj);
+        async function listarGastos() {
+            const data = await db.gastos.toArray();
+            document.getElementById('lista-gastos-view').innerHTML = data.map(g => `
+                <div class="card-3d p-4 flex justify-between items-center">
+                    <div><input onchange="db.gastos.update(${g.id}, {nome: this.value})" value="${g.nome}" class="font-bold text-xs border-none"><br>
+                    <input type="number" onchange="db.gastos.update(${g.id}, {valor: parseFloat(this.value)})" value="${g.valor}" class="text-red-500 font-bold border-none"></div>
+                    <button onclick="db.gastos.delete(${g.id}).then(listarGastos)" class="text-red-300">✕</button>
+                </div>`).join('');
+        }
+
+        async function listarVendas() {
+            const data = await db.vendas.reverse().toArray();
+            document.getElementById('lista-vendas-view').innerHTML = data.map(v => `
+                <div class="card-3d p-3 flex justify-between text-xs items-center">
+                    <span><b>${v.data}</b> - ${v.cliente.nome}</span>
+                    <span class="font-bold">R$ ${v.total.toFixed(2)}</span>
+                </div>`).join('');
         }
 
         async function salvarGasto() {
-            const valor = parseFloat(document.getElementById('gasto-valor').value);
-            await db.gastos.add({ nome: document.getElementById('gasto-nome').value, valor, data: document.getElementById('gasto-data').value });
+            await db.gastos.add({ nome: document.getElementById('gasto-nome').value, valor: parseFloat(document.getElementById('gasto-valor').value), data: document.getElementById('gasto-data').value });
             listarGastos();
         }
 
-        async function listarGastos() {
-            const list = await db.gastos.toArray();
-            document.getElementById('lista-gastos').innerHTML = list.map(g => `<div class="card-3d p-4 flex justify-between"><span>${g.nome}</span><span class="text-red-500 font-bold">-R$ ${g.valor}</span></div>`).join('');
+        async function salvarProd() {
+            await db.produtos.add({ nome: document.getElementById('prod-nome').value, preco: parseFloat(document.getElementById('prod-preco').value) });
+            listarProdutos();
         }
 
-        async function exportarBackup() {
-            const v = await db.vendas.toArray(); const g = await db.gastos.toArray();
-            const c = await db.clientes.toArray(); const p = await db.produtos.toArray();
-            const blob = new Blob([JSON.stringify({v,g,c,p})], {type: 'application/json'});
-            const url = URL.createObjectURL(blob); const a = document.createElement('a');
-            a.href = url; a.download = 'MugShopp_Backup.json'; a.click();
-        }
-
-        async function gerarPDFRelatorio() {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            const v = await db.vendas.toArray();
-            doc.text("RELATÓRIO DE VENDAS MUGSHOPP", 14, 15);
-            doc.autoTable({ startY: 25, head: [['Data', 'Cliente', 'Total']], body: v.map(x => [x.data, x.cliente, x.total.toFixed(2)]) });
-            doc.save("Relatorio_Vendas.pdf");
+        async function listarProdutos() {
+            const data = await db.produtos.toArray();
+            document.getElementById('lista-prod-view').innerHTML = data.map(p => `
+                <div class="card-3d p-3 flex justify-between items-center">
+                    <input onchange="db.produtos.update(${p.id}, {nome: this.value})" value="${p.nome}" class="font-bold text-xs border-none">
+                    <input type="number" onchange="db.produtos.update(${p.id}, {preco: parseFloat(this.value)})" value="${p.preco}" class="w-20 text-right border-none">
+                    <button onclick="db.produtos.delete(${p.id}).then(listarProdutos)" class="text-red-300 ml-2">✕</button>
+                </div>`).join('');
         }
 
         window.onload = () => showTab('home');
@@ -267,5 +263,5 @@
 </body>
 </html>
 
-    
+                                                                                 
     
