@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #bf9a5a; --bg: #f8f9fa; }
-        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 90px; color: #1a1a1a; }
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 90px; color: #1a1a1a; overflow-x: hidden; }
         .card-3d { background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.02); overflow: hidden; }
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 10px; font-weight: 600; background: none; border: none; cursor: pointer; }
@@ -35,17 +35,17 @@
     <main class="p-4 max-w-4xl mx-auto">
         <section id="content-home" class="tab-content">
             <div class="card-3d p-6 mb-6">
-                <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-4">Evolução Financeira</h3>
+                <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-4">Entradas vs Saídas (Mês)</h3>
                 <canvas id="chartLinha" height="200"></canvas>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="card-3d p-5 text-center bg-gray-50">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Vendas Mês Anterior</p>
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Meta / Ref Anterior</p>
                     <input type="number" id="vendas-manual-anterior" onchange="salvarMeta()" class="text-xl font-bold text-center bg-transparent border-none w-full" value="0">
                 </div>
                 <div class="card-3d p-5 text-center border-b-4 border-[#10b981]">
                     <p class="text-[9px] font-bold text-[#10b981] uppercase">Vendas Mês Atual</p>
-                    <h4 id="vendas-mes-atual" class="text-2xl font-bold">0</h4>
+                    <h4 id="vendas-mes-atual" class="text-2xl font-bold">R$ 0,00</h4>
                 </div>
             </div>
         </section>
@@ -68,7 +68,7 @@
                     <button onclick="salvarVenda()" class="btn-gold">Finalizar & Gerar Recibo</button>
                 </div>
             </div>
-            <h3 class="font-bold text-xs uppercase px-2">Histórico de Vendas</h3>
+            <h3 class="font-bold text-xs uppercase px-2">Histórico Recente</h3>
             <div id="lista-vendas-view" class="space-y-2"></div>
         </section>
 
@@ -83,6 +83,7 @@
                     <input type="text" id="cli-cidade" placeholder="Cidade">
                     <input type="text" id="cli-cpf" placeholder="CPF">
                 </div>
+                <input type="text" id="cli-endereco" placeholder="Endereço Completo">
                 <button onclick="salvarCliente()" class="btn-gold">Cadastrar Cliente</button>
             </div>
             <div id="lista-cli-view" class="space-y-2"></div>
@@ -92,35 +93,50 @@
             <div class="card-3d p-6 space-y-3">
                 <input type="text" id="prod-nome" placeholder="Produto">
                 <input type="number" id="prod-preco" placeholder="Preço">
-                <button onclick="salvarProd()" class="btn-gold">Salvar no Estoque</button>
+                <button onclick="salvarProd()" class="btn-gold">Salvar Produto</button>
             </div>
             <div id="lista-prod-view" class="space-y-2"></div>
         </section>
 
         <section id="content-gastos" class="tab-content hidden space-y-4">
             <div class="card-3d p-6 space-y-3">
-                <input type="text" id="gasto-nome" placeholder="Descrição">
-                <input type="number" id="gasto-valor" placeholder="R$">
+                <input type="text" id="gasto-nome" placeholder="Descrição da Saída">
+                <input type="number" id="gasto-valor" placeholder="R$ Valor">
                 <input type="date" id="gasto-data">
                 <button onclick="salvarGasto()" class="btn-gold">Lançar Gasto</button>
             </div>
             <div id="lista-gastos-view" class="space-y-2"></div>
+        </section>
+
+        <section id="content-ajustes" class="tab-content hidden space-y-4">
+            <div class="card-3d p-6 space-y-4">
+                <h3 class="font-bold uppercase text-xs">Gestão de Dados</h3>
+                <button onclick="gerarRelatorioPDF()" class="btn-outline">Baixar Relatório do Mês (PDF)</button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="exportarBackup()" class="btn-outline text-blue-600">Fazer Backup</button>
+                    <label class="btn-outline text-green-600 cursor-pointer text-center">
+                        Importar Backup
+                        <input type="file" id="import-input" class="hidden" onchange="importarBackup(this)">
+                    </label>
+                </div>
+            </div>
         </section>
     </main>
 
     <nav class="bottom-nav">
         <button onclick="showTab('home')" id="nav-home" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Home</button>
         <button onclick="showTab('vender')" id="nav-vender" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>Vender</button>
-        <button onclick="showTab('clientes')" id="nav-clientes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Clientes</button>
+        <button onclick="showTab('clientes')" id="nav-clientes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Cli</button>
         <button onclick="showTab('produtos')" id="nav-produtos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>Estoque</button>
         <button onclick="showTab('gastos')" id="nav-gastos" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line></svg>Gastos</button>
+        <button onclick="showTab('ajustes')" id="nav-ajustes" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Ajustes</button>
     </nav>
     <script>
         const db = new Dexie("MugShoppDB");
-        db.version(11).stores({
-            vendas: '++id, data, clienteId',
-            gastos: '++id, data, valor',
-            clientes: '++id, nome, fone, email, cidade, cpf',
+        db.version(14).stores({
+            vendas: '++id, data, mes, total',
+            gastos: '++id, data, mes, valor',
+            clientes: '++id, nome, fone, email, cidade, cpf, endereco',
             produtos: '++id, nome, preco',
             meta: 'id'
         });
@@ -138,6 +154,31 @@
             if(id === 'produtos') listarProdutos();
             if(id === 'gastos') listarGastos();
         }
+
+        async function atualizarDash() {
+            const mesAtual = new Date().toLocaleDateString('pt-BR').slice(3);
+            const vendas = await db.vendas.where('mes').equals(mesAtual).toArray();
+            const gastos = await db.gastos.where('mes').equals(mesAtual).toArray();
+            
+            const totalV = vendas.reduce((a, b) => a + b.total, 0);
+            const totalG = gastos.reduce((a, b) => a + b.valor, 0);
+            
+            document.getElementById('vendas-mes-atual').innerText = `R$ ${totalV.toFixed(2)}`;
+            const m = await db.meta.get(1); if(m) document.getElementById('vendas-manual-anterior').value = m.valor;
+
+            const ctx = document.getElementById('chartLinha').getContext('2d');
+            if(chartObj) chartObj.destroy();
+            chartObj = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Entradas', 'Saídas'],
+                    datasets: [{ data: [totalV, totalG], backgroundColor: ['#10b981', '#f87171'] }]
+                },
+                options: { plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        async function salvarMeta() { await db.meta.put({id: 1, valor: document.getElementById('vendas-manual-anterior').value}); }
 
         async function initVender() {
             const clis = await db.clientes.toArray(); const prods = await db.produtos.toArray();
@@ -160,103 +201,91 @@
                     <span>${it.qtd}x ${it.nome}</span>
                     <div class="flex gap-4"><span>R$ ${it.subtotal.toFixed(2)}</span><button onclick="carrinho.splice(${i},1);renderCarrinho()" class="text-red-400">✕</button></div>
                 </div>`).join('');
-            const tot = carrinho.reduce((a, b) => a + b.subtotal, 0);
-            document.getElementById('venda-total-display').innerText = tot.toFixed(2).replace('.',',');
+            document.getElementById('venda-total-display').innerText = carrinho.reduce((a, b) => a + b.subtotal, 0).toFixed(2).replace('.',',');
         }
 
         async function salvarVenda() {
             if(carrinho.length === 0) return alert("Carrinho vazio!");
             const cid = document.getElementById('venda-cliente').value;
-            const cliente = cid ? await db.clientes.get(parseInt(cid)) : {nome: "Consumidor Final"};
             const venda = {
                 data: new Date().toLocaleDateString('pt-BR'),
-                cliente: cliente,
+                mes: new Date().toLocaleDateString('pt-BR').slice(3),
+                cliente: cid ? await db.clientes.get(parseInt(cid)) : {nome: "Consumidor Final"},
                 itens: [...carrinho],
                 total: carrinho.reduce((a, b) => a + b.subtotal, 0),
                 pagamento: document.getElementById('venda-pagamento').value,
                 status: document.getElementById('venda-status').value
             };
             await db.vendas.add(venda);
-            gerarReciboPDF(venda);
-            carrinho = []; renderCarrinho(); listarVendas();
+            gerarReciboPDF(venda); carrinho = []; renderCarrinho(); listarVendas();
         }
 
         async function gerarReciboPDF(v) {
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            doc.setFillColor(0,0,0); doc.rect(0, 0, 210, 40, 'F');
-            doc.setTextColor(255,255,255); doc.setFontSize(22); doc.text("MUGSHOPP", 105, 20, {align:'center'});
-            doc.setFontSize(10); doc.text("Estúdio de Design & Personalizados | Taubaté - SP", 105, 30, {align:'center'});
-            
-            doc.setTextColor(0,0,0); doc.setFontSize(12); doc.text("RECIBO DE VENDA", 14, 50);
-            doc.setFontSize(10); doc.text(`Cliente: ${v.cliente.nome}`, 14, 60);
-            doc.text(`WhatsApp: ${v.cliente.fone || '-'} | CPF: ${v.cliente.cpf || '-'}`, 14, 65);
-            doc.text(`Data: ${v.data} | Pagamento: ${v.pagamento} | Status: ${v.status}`, 14, 70);
-
-            doc.autoTable({
-                startY: 80, head: [['Qtd', 'Produto', 'Unit.', 'Subtotal']],
-                body: v.itens.map(i => [i.qtd, i.nome, `R$ ${i.preco.toFixed(2)}`, `R$ ${i.subtotal.toFixed(2)}`]),
-                theme: 'striped', headStyles: {fillColor: [191, 154, 90]}
-            });
-            doc.setFontSize(14); doc.text(`TOTAL: R$ ${v.total.toFixed(2)}`, 14, doc.lastAutoTable.finalY + 15);
-            doc.save(`Recibo_${v.cliente.nome}_${v.data}.pdf`);
+            doc.text("MUGSHOPP PDV - RECIBO", 10, 10);
+            doc.text(`Cliente: ${v.cliente.nome} | Total: R$ ${v.total.toFixed(2)}`, 10, 20);
+            doc.autoTable({ startY: 30, head: [['Qtd', 'Item', 'Sub']], body: v.itens.map(i => [i.qtd, i.nome, i.subtotal]) });
+            doc.save(`Recibo_${v.data}.pdf`);
         }
 
         async function salvarCliente() {
-            const data = { nome: document.getElementById('cli-nome').value, fone: document.getElementById('cli-fone').value, email: document.getElementById('cli-email').value, cidade: document.getElementById('cli-cidade').value, cpf: document.getElementById('cli-cpf').value };
-            await db.clientes.add(data); listarClientes();
-        }
-
-        async function listarClientes() {
-            const data = await db.clientes.toArray();
-            document.getElementById('lista-cli-view').innerHTML = data.map(c => `
-                <div class="card-3d p-4 space-y-2">
-                    <input onchange="db.clientes.update(${c.id}, {nome: this.value})" value="${c.nome}" class="font-bold text-sm border-none w-full">
-                    <div class="grid grid-cols-2 text-[10px] gap-2">
-                        <input onchange="db.clientes.update(${c.id}, {fone: this.value})" value="${c.fone}" placeholder="Fone" class="border-none">
-                        <input onchange="db.clientes.update(${c.id}, {cpf: this.value})" value="${c.cpf}" placeholder="CPF" class="border-none">
-                    </div>
-                    <button onclick="db.clientes.delete(${c.id}).then(listarClientes)" class="text-red-300 text-[10px]">Excluir Cliente</button>
-                </div>`).join('');
-        }
-
-        async function listarGastos() {
-            const data = await db.gastos.toArray();
-            document.getElementById('lista-gastos-view').innerHTML = data.map(g => `
-                <div class="card-3d p-4 flex justify-between items-center">
-                    <div><input onchange="db.gastos.update(${g.id}, {nome: this.value})" value="${g.nome}" class="font-bold text-xs border-none"><br>
-                    <input type="number" onchange="db.gastos.update(${g.id}, {valor: parseFloat(this.value)})" value="${g.valor}" class="text-red-500 font-bold border-none"></div>
-                    <button onclick="db.gastos.delete(${g.id}).then(listarGastos)" class="text-red-300">✕</button>
-                </div>`).join('');
+            await db.clientes.add({
+                nome: document.getElementById('cli-nome').value, fone: document.getElementById('cli-fone').value,
+                email: document.getElementById('cli-email').value, cidade: document.getElementById('cli-cidade').value,
+                cpf: document.getElementById('cli-cpf').value, endereco: document.getElementById('cli-endereco').value
+            });
+            alert("Salvo!"); listarClientes();
         }
 
         async function listarVendas() {
-            const data = await db.vendas.reverse().toArray();
-            document.getElementById('lista-vendas-view').innerHTML = data.map(v => `
-                <div class="card-3d p-3 flex justify-between text-xs items-center">
-                    <span><b>${v.data}</b> - ${v.cliente.nome}</span>
-                    <span class="font-bold">R$ ${v.total.toFixed(2)}</span>
-                </div>`).join('');
+            const v = await db.vendas.reverse().limit(10).toArray();
+            document.getElementById('lista-vendas-view').innerHTML = v.map(i => `<div class="card-3d p-3 text-xs flex justify-between"><span>${i.data} - ${i.cliente.nome}</span><b>R$ ${i.total.toFixed(2)}</b></div>`).join('');
         }
 
         async function salvarGasto() {
-            await db.gastos.add({ nome: document.getElementById('gasto-nome').value, valor: parseFloat(document.getElementById('gasto-valor').value), data: document.getElementById('gasto-data').value });
+            const d = document.getElementById('gasto-data').value;
+            const dataF = d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+            await db.gastos.add({
+                nome: document.getElementById('gasto-nome').value,
+                valor: parseFloat(document.getElementById('gasto-valor').value),
+                data: dataF, mes: dataF.slice(3)
+            });
             listarGastos();
         }
 
-        async function salvarProd() {
-            await db.produtos.add({ nome: document.getElementById('prod-nome').value, preco: parseFloat(document.getElementById('prod-preco').value) });
-            listarProdutos();
+        async function exportarBackup() {
+            const d = { v: await db.vendas.toArray(), g: await db.gastos.toArray(), c: await db.clientes.toArray(), p: await db.produtos.toArray() };
+            const blob = new Blob([JSON.stringify(d)], {type: "application/json"});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download="backup_mugshopp.json"; a.click();
         }
 
-        async function listarProdutos() {
-            const data = await db.produtos.toArray();
-            document.getElementById('lista-prod-view').innerHTML = data.map(p => `
-                <div class="card-3d p-3 flex justify-between items-center">
-                    <input onchange="db.produtos.update(${p.id}, {nome: this.value})" value="${p.nome}" class="font-bold text-xs border-none">
-                    <input type="number" onchange="db.produtos.update(${p.id}, {preco: parseFloat(this.value)})" value="${p.preco}" class="w-20 text-right border-none">
-                    <button onclick="db.produtos.delete(${p.id}).then(listarProdutos)" class="text-red-300 ml-2">✕</button>
-                </div>`).join('');
+        function importarBackup(input) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const d = JSON.parse(e.target.result);
+                await db.vendas.bulkPut(d.v || []); await db.gastos.bulkPut(d.g || []);
+                await db.clientes.bulkPut(d.c || []); await db.produtos.bulkPut(d.p || []);
+                alert("Backup Importado!"); location.reload();
+            };
+            reader.readAsText(input.files[0]);
         }
+
+        async function gerarRelatorioPDF() {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            const mes = new Date().toLocaleDateString('pt-BR').slice(3);
+            const v = await db.vendas.where('mes').equals(mes).toArray();
+            const g = await db.gastos.where('mes').equals(mes).toArray();
+            doc.text(`Relatório Mensal - ${mes}`, 10, 10);
+            doc.autoTable({ startY: 20, head: [['Data', 'Tipo', 'Valor']], body: [...v.map(x=>[x.data, 'Entrada', x.total]), ...g.map(x=>[x.data, x.nome, x.valor])] });
+            doc.save(`Relatorio_${mes}.pdf`);
+        }
+
+        // Funções de listagem simplificadas
+        async function listarClientes() { const d = await db.clientes.toArray(); document.getElementById('lista-cli-view').innerHTML = d.map(c => `<div class="card-3d p-4 text-xs font-bold">${c.nome} - ${c.fone}</div>`).join(''); }
+        async function listarProdutos() { const d = await db.produtos.toArray(); document.getElementById('lista-prod-view').innerHTML = d.map(p => `<div class="card-3d p-4 text-xs font-bold">${p.nome} - R$ ${p.preco}</div>`).join(''); }
+        async function listarGastos() { const d = await db.gastos.toArray(); document.getElementById('lista-gastos-view').innerHTML = d.map(g => `<div class="card-3d p-4 text-xs flex justify-between"><span class="text-red-500">${g.nome}</span><b>R$ ${g.valor}</b></div>`).join(''); }
+
+        async function salvarProd() { await db.produtos.add({ nome: document.getElementById('prod-nome').value, preco: parseFloat(document.getElementById('prod-preco').value) }); listarProdutos(); }
 
         window.onload = () => showTab('home');
     </script>
